@@ -47,17 +47,26 @@ client = MongoClient(uri)
 mongo_db = client['coffee-map']
 mongo_collection = mongo_db['raw_shop_info']
 
+# count = 0
 for document in mongo_collection.find():
+    # count += 1
+    # print(f"count: {count}")
+    # if document['doc'].get('place_details'):
+    #     continue
     place_id = document['doc'].get('place_id')
     print(f'place_id: {place_id}')
     if place_id:
         time.sleep(random.randint(3, 6))
         places_result = gmaps.place(place_id, **params)
-        print(f'status: {places_result['status'] }')
+        print(f"status: {places_result['status']}")
         if places_result['status'] != 'ZERO_RESULTS':
             place_detail = places_result['result']
-            document['doc'].pop('place_details', None)
-            document['doc']['place_details'] = place_detail
-            mongo_collection.replace_one({'_id': document['_id']}, document)
+            print(f"get_id: {place_detail['place_id']}")
+            print()
+            if place_detail['place_id'] == place_id:
+                document['doc'].pop('place_details', None)
+                document['doc']['place_details'] = place_detail
+                mongo_collection.replace_one(
+                    {'_id': document['_id']}, document)
 
 client.close()
