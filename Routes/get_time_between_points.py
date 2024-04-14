@@ -47,7 +47,6 @@ def get_route_estimate(origin, destination):
     chrome_driver_path = "/usr/local/bin/chromedriver"
     service = Service(executable_path=chrome_driver_path)
     driver = webdriver.Chrome(service=service, options=options)
-    # direction_url = 'https://maps.google.com/maps/dir/台北小巨蛋/台北101/'
     driver.get(direction_url)
     redirected_url = driver.current_url
     print("Redirected URL:", redirected_url)
