@@ -51,7 +51,7 @@ def get_route_estimate(origin, destination):
     driver.get(direction_url)
     redirected_url = driver.current_url
     print("Redirected URL:", redirected_url)
-    driver.get(redirected_url)
+    # driver.get(redirected_url)
 
     wait = WebDriverWait(driver, 10)
     wait.until(EC.visibility_of_element_located(
@@ -85,8 +85,8 @@ def get_route_estimate(origin, destination):
 
     return output
 
-
-origin = (25.05304227910595, 121.55030567410216)
-destination = (25.03850115585252, 121.5327103833683)
-result = get_route_estimate(origin, destination)
-print(result)
+# test
+# origin = (25.05304227910595, 121.55030567410216)
+# destination = (25.03850115585252, 121.5327103833683)
+# result = get_route_estimate(origin, destination)
+# print(result)
