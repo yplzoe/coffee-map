@@ -73,7 +73,7 @@ def get_location_from_txt(file_name=join(dirname(__file__), 'locations.txt')):
     return locations
 
 
-def get_places_to_mongodb(params, location):
+def get_places_to_mongodb(params, location, token_dict):
     """use place_nearby to get info and insert to mongodb by insert many
 
     Args:
@@ -111,6 +111,10 @@ def get_places_to_mongodb(params, location):
         if 'next_page_token' in places_result:
             has_next = True
             params['page_token'] = places_result['next_page_token']
+            if places_result['next_page_token'] in token_dict:
+                token_dict[places_result['next_page_token']] += 1
+            else:
+                token_dict[places_result['next_page_token']] = 1
         else:
             has_next = False
 
@@ -138,6 +142,10 @@ def get_places_to_mongodb(params, location):
             if 'next_page_token' in places_result:
                 has_next = True
                 params['page_token'] = places_result['next_page_token']
+                if places_result['next_page_token'] in token_dict:
+                    token_dict[places_result['next_page_token']] += 1
+                else:
+                    token_dict[places_result['next_page_token']] = 1
             else:
                 has_next = False
 
@@ -167,13 +175,25 @@ params = {
     'keyword': 'cafe',
     'location': init_location,
     'radius': small_radius,
-    'open_now': False
+    'open_now': False,
+    'language': 'zh-TW'
 }
 locations = get_location_from_txt()
+token_dict = {}
+# appworks = (25.038722892075647, 121.53235946829987)
+# get_places_to_mongodb(params, appworks, token_dict)
 for loc in locations:
     time.sleep(random.randint(5, 10))
-    get_places_to_mongodb(params, loc)
+    print(f"before enter: {params}")
+    if 'page_token' in params:
+        params.pop('page_token')
+    print(f"clean before enter: {params}")
+    get_places_to_mongodb(params, loc, token_dict)
+    print(f"loc: {loc}")
+    print(f"params: {params}")
+    print('--------------------')
 
+print(token_dict)
 
 # num_threads = 10
 # result_queue = queue.Queue()  # null
