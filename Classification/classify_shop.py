@@ -46,14 +46,17 @@ tags_collection = db['tags']
 
 
 def categorize_data(reviews):
-    result = []
+    result = {}
     for review in reviews:
         text = review.get('text', '')
         if text:
             for tag_type, tags in TAGS.items():
                 for tag in tags:
                     if tag in text:
-                        result.append(tag_type)
+                        if tag_type in result:
+                            result[tag_type] += 1
+                        else:
+                            result[tag_type] = 1
                         break
     return result
 
