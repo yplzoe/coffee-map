@@ -102,7 +102,9 @@ def get_places_to_mongodb(params, location, token_dict):
     places_result = gmaps.places_nearby(**params)
 
     # with lock:
-    print(f"location: {params['location']}")
+    print(f"input location: {params['location']}")
+    # places_result
+    # print(f"return location: {}")
     print(places_result['status'])
     for i in range(len(places_result['results'])):
         print(places_result['results'][i]['name'])
@@ -147,7 +149,7 @@ def get_places_to_mongodb(params, location, token_dict):
                 else:
                     token_dict[places_result['next_page_token']] = 1
             else:
-                has_next = False
+                break
 
     client.close()
 
@@ -178,6 +180,8 @@ params = {
     'open_now': False,
     'language': 'zh-TW'
 }
+test_loc = (25.038995380814494, 121.53253176715249)
+get_places_to_mongodb(params, test_loc)
 locations = get_location_from_txt()
 token_dict = {}
 # appworks = (25.038722892075647, 121.53235946829987)
