@@ -17,8 +17,27 @@ import time
 from dotenv import load_dotenv, find_dotenv
 from os.path import join, dirname, abspath
 import os
-import googlemaps
 from module import MongoDB
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
+selenium_logger = logging.getLogger("selenium_reviews")
+selenium_logger.setLevel(logging.INFO)
+
+
+log_dir = "logs"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, "log_get_reviews.log")
+selenium_handler = TimedRotatingFileHandler(
+    log_file, when="midnight", interval=1, backupCount=7)
+selenium_handler.setLevel(logging.INFO)
+
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+selenium_handler.setFormatter(formatter)
+selenium_logger.addHandler(selenium_handler)
 
 
 def wait_for_element_location_to_be_stable(element):
@@ -78,8 +97,11 @@ def get_single_shop_reviews(name):
     )
     # driver = webdriver.Chrome(service=service, options=options)
     driver.get(website)
+    get_url = driver.current_url
+
+    print("The current url is:"+str(get_url))
     actionChains = ActionChains(driver)
-    # go to the ramen
+
     actionChains.send_keys(name)  # Send keys to the element
     actionChains.send_keys(Keys.ENTER)  # Press Enter key
     actionChains.perform()  # Perform the actions
@@ -150,14 +172,18 @@ def get_all_shop_reviews():
     mongo_collection = mongo_db['raw_shop_info']
 
     re_collection = mongo_db['more_reviews']
+    count = 0
 
     for document in mongo_collection.find():
+        if count > 2:
+            break
+        count += 1
+
         name = document.get('_id')
 
         re_skip = re_collection.find_one({"name": name})
-        #! test
-        if re_skip:
-            continue
+        # if re_skip:
+        #     continue
 
         current_utc_time = datetime.now(timezone.utc)
         # name = 'Tibet st. Cafe'
