@@ -1,8 +1,36 @@
+import logging
+from logging.handlers import TimedRotatingFileHandler
 from dotenv import load_dotenv, find_dotenv
 from os.path import join, dirname, abspath
 import os
 from pymongo import MongoClient
-from module import MongoDB
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+dotenv_path = 'plugins/.env'
+load_dotenv(dotenv_path, override=True)
+
+
+mongo_logger = logging.getLogger("MongoDB")
+mongo_logger.setLevel(logging.INFO)
+
+
+log_dir = "logs"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, "log_classify_shop.log")
+mongo_handler = TimedRotatingFileHandler(
+    log_file, when="midnight", interval=1, backupCount=7)
+mongo_handler.setLevel(logging.INFO)
+
+
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+mongo_handler.setFormatter(formatter)
+mongo_logger.addHandler(mongo_handler)
+
 
 BREW_TAGS = ["手沖", "單品", "賽風", "虹吸", "冰滴"]
 COFFEE_TAGS = ["咖啡好喝", "拿鐵好喝", "咖啡不錯", "特調"]
@@ -32,10 +60,6 @@ TAGS = {
     "time": TIME_TAGS
 }
 
-root_path = abspath(join(dirname(__file__), os.pardir))
-dotenv_path = join(root_path, '.env')
-load_dotenv(dotenv_path, override=True)
-
 
 def categorize_data(reviews):
     result = {}
@@ -54,17 +78,31 @@ def categorize_data(reviews):
 
 
 def get_classified_tag():
-    uri = os.environ.get("MONGO_URI")
-    client = MongoClient(uri)
-    db = client['coffee-map']
-    raw_collection = db['raw_shop_info']
+    try:
+        uri = os.environ.get("MONGO_URI")
+        client = MongoClient(uri)
+        db = client['coffee-map']
+        raw_collection = db['raw_shop_info']
+        count = 0
 
-    for document in raw_collection.find():
-        id = document.get('_id')  # name of coffee
-        reviews = document['doc'].get('place_details', {}).get('reviews', [])
-        tag_result = categorize_data(reviews)
-        document.pop('tags', None)
-        document['tags'] = tag_result
-        raw_collection.replace_one({'_id': document['_id']}, document)
+        for document in raw_collection.find():
+            if count > 1:
+                break
+            count += 1
+            id = document.get('_id')  # name of coffee
+            reviews = document['doc'].get(
+                'place_details', {}).get('reviews', [])
+            tag_result = categorize_data(reviews)
+            document.pop('tags', None)
+            document['tags'] = tag_result
+            raw_collection.replace_one({'_id': document['_id']}, document)
+            mongo_logger.info(f"Tags updated for coffee shop: {id}")
 
-    client.close()
+        client.close()
+        logging.info("Tag categorization completed.")
+    except Exception as e:
+        logging.error(f"Error occurred during tag categorization: {str(e)}")
+
+
+# if __name__ == "__main__":
+#     get_classified_tag()
