@@ -19,6 +19,7 @@ import airflow
 import classify_shop as cls_shop
 import get_reviews
 import get_place_detail
+import get_map_data
 
 default_args = {
     'owner': 'airflow',
@@ -41,6 +42,11 @@ with DAG(
 
     start_task = DummyOperator(task_id='start_task')
 
+    search_cafe_shop = PythonOperator(
+        task_id='search_cafe',
+        python_callable=get_map_data.search_cafe
+    )
+
     place_details = PythonOperator(
         task_id='get_place_detail',
         python_callable=get_place_detail.get_all_details,
@@ -57,4 +63,4 @@ with DAG(
     )
     end_task = DummyOperator(task_id='end_task')
 
-start_task >> place_details >> more_reviews >> shop_classified >> end_task
+start_task >> search_cafe_shop >> place_details >> more_reviews >> shop_classified >> end_task
