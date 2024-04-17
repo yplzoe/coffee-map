@@ -1,3 +1,4 @@
+import time
 import os
 import logging
 import urllib.request
@@ -43,6 +44,7 @@ with DAG(
         task_id='get_more_reviews',
         python_callable=get_reviews.get_all_shop_reviews,
     )
+
     shop_classified = PythonOperator(
         task_id='get_each_shop_classified_tag',
         python_callable=cls_shop.get_classified_tag,

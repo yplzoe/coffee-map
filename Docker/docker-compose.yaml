@@ -284,15 +284,15 @@ services:
         condition: service_completed_successfully
   selenium:
     container_name: remote_chromedriver
-    image: seleniarm/standalone-chromium:latest
+    image: seleniarm/standalone-chromium:123.0
     ports:
       - 4444:4444
     restart: always
-    networks:
-      - network1
+    # networks:
+    #   - network1
 volumes:
   postgres-db-volume:
-networks:
-  network1:
-    name: pipeline_monitoring
-    external: true
+# networks:
+#   network1:
+#     name: pipeline_monitoring
+#     external: true
