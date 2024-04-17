@@ -16,6 +16,7 @@ import pytz
 import airflow.providers as ap
 import airflow
 import classify_shop as cls_shop
+import get_reviews
 
 default_args = {
     'owner': 'airflow',
@@ -38,10 +39,14 @@ with DAG(
 
     start_task = DummyOperator(task_id='start_task')
 
+    more_reviews = PythonOperator(
+        task_id='get_more_reviews',
+        python_callable=get_reviews.get_all_shop_reviews,
+    )
     shop_classified = PythonOperator(
         task_id='get_each_shop_classified_tag',
         python_callable=cls_shop.get_classified_tag,
     )
     end_task = DummyOperator(task_id='end_task')
 
-start_task >> shop_classified >> end_task
+start_task >> more_reviews >> shop_classified >> end_task
