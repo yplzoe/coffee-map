@@ -20,6 +20,7 @@ import classify_shop as cls_shop
 import get_reviews
 import get_place_detail
 import get_map_data
+import clean_data
 
 #! remove test before running
 
@@ -49,6 +50,11 @@ with DAG(
         python_callable=get_map_data.search_cafe
     )
 
+    clean_from_test_to_raw = PythonOperator(
+        task_id='clean_data',
+        python_callable=clean_data.clean_data_from_test_to_raw
+    )
+
     place_details = PythonOperator(
         task_id='get_place_detail',
         python_callable=get_place_detail.get_all_details,
@@ -65,4 +71,4 @@ with DAG(
     )
     end_task = DummyOperator(task_id='end_task')
 
-start_task >> search_cafe_shop >> place_details >> more_reviews >> shop_classified >> end_task
+start_task >> search_cafe_shop >> clean_from_test_to_raw >> place_details >> more_reviews >> shop_classified >> end_task

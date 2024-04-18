@@ -9,6 +9,7 @@ import os
 from os.path import join, dirname, abspath
 from dotenv import load_dotenv, find_dotenv
 import time
+from datetime import datetime
 import pymongo
 from pymongo import MongoClient
 from pymongo.errors import BulkWriteError
@@ -102,9 +103,10 @@ def get_places_to_mongodb(params, location):
 
     logging.info(f"input location: {params['location']}")
     logging.info(f"status: {places_result['status']}")
-    for i in range(len(places_result['results'])):
+    for result in places_result['results']:
+        result['create_at'] = datetime.utcnow()
         logging.info(
-            f"result place name: {places_result['results'][i]['name']}")
+            f"result place name: {result['name']}")
 
     if places_result['status'] != 'ZERO_RESULTS':
         if 'next_page_token' in places_result:
@@ -113,9 +115,10 @@ def get_places_to_mongodb(params, location):
         while has_next:
             time.sleep(5)
             places_result = gmaps.places_nearby(**params)
-            for i in range(len(places_result['results'])):
+            for result in places_result['results']:
+                result['create_at'] = datetime.utcnow()
                 logging.info(
-                    f"result place name: {places_result['results'][i]['name']}")
+                    f"result place name: {result['name']}")
             try:
                 mongo_insert = mongo_collection.insert_many(
                     places_result['results'])
