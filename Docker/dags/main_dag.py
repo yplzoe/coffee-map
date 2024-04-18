@@ -21,6 +21,8 @@ import get_reviews
 import get_place_detail
 import get_map_data
 
+#! remove test before running
+
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,

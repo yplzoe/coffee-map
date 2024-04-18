@@ -39,7 +39,7 @@ INTERNET_TAGS = ["網路", "有wifi", "免費wifi"]
 SOCKET_TAGS = ["插座"]
 SEAT_TAGS = ["座位", "位置多"]
 DESERT_TAGS = ["甜點", "提拉米蘇", "塔", "布丁", "蛋糕"]
-PET_TAGS = ["寵物", "貓", "狗"]
+PET_TAGS = ["寵物", "貓", "狗", "鸚鵡"]
 WORK_TAGS = ["工作", "讀書", "辦公", "看書"]
 COMFORT_TAGS = ["舒適", "放鬆"]
 QUIET_TAGS = ["安靜"]
@@ -61,7 +61,7 @@ TAGS = {
 }
 
 
-def categorize_data(reviews):
+def categorize_data_raw(reviews):
     result = {}
     for review in reviews:
         text = review.get('text', '')
@@ -77,12 +77,27 @@ def categorize_data(reviews):
     return result
 
 
+def categorize_data_more_reviews(reviews, tag_result):
+    # result = {}
+    for review in reviews:  # array
+        if review:
+            for tag_type, tags in TAGS.items():
+                for tag in tags:
+                    if tag in review:
+                        if tag_type in tag_result:
+                            tag_result[tag_type] += 1
+                        else:
+                            tag_result[tag_type] = 1
+                        break
+
+
 def get_classified_tag():
     try:
         uri = os.environ.get("MONGO_URI")
         client = MongoClient(uri)
         db = client['coffee-map']
         raw_collection = db['raw_shop_info']
+        more_collection = db['more_reviews']
         count = 0
 
         for document in raw_collection.find():
@@ -92,7 +107,15 @@ def get_classified_tag():
             id = document.get('_id')  # name of coffee
             reviews = document['doc'].get(
                 'place_details', {}).get('reviews', [])
-            tag_result = categorize_data(reviews)
+            tag_result = categorize_data_raw(reviews)
+
+            find_latest = more_collection.find_one(
+                {"name": id}, sort=[("create_at", -1)])
+            find_latest_review = find_latest.get('reviews')
+            if (find_latest_review != []) and (find_latest_review != ["error"]):
+                categorize_data_more_reviews(
+                    find_latest_review, tag_result)
+
             document.pop('tags', None)
             document['tags'] = tag_result
             raw_collection.replace_one({'_id': document['_id']}, document)
