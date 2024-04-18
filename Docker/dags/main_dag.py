@@ -21,6 +21,7 @@ import get_reviews
 import get_place_detail
 import get_map_data
 import clean_data
+import upload_s3
 
 #! remove test before running
 
@@ -50,6 +51,11 @@ with DAG(
         python_callable=get_map_data.search_cafe
     )
 
+    upload_files = PythonOperator(
+        task_id='upload_files',
+        python_callable=upload_s3.upload_json_to_s3
+    )
+
     clean_from_test_to_raw = PythonOperator(
         task_id='clean_data',
         python_callable=clean_data.clean_data_from_test_to_raw
@@ -60,9 +66,19 @@ with DAG(
         python_callable=get_place_detail.get_all_details,
     )
 
+    upload_files_2 = PythonOperator(
+        task_id='upload_files_2',
+        python_callable=upload_s3.upload_json_to_s3
+    )
+
     more_reviews = PythonOperator(
         task_id='get_more_reviews',
         python_callable=get_reviews.get_all_shop_reviews,
+    )
+
+    upload_files_3 = PythonOperator(
+        task_id='upload_files_3',
+        python_callable=upload_s3.upload_json_to_s3
     )
 
     shop_classified = PythonOperator(
@@ -71,4 +87,5 @@ with DAG(
     )
     end_task = DummyOperator(task_id='end_task')
 
-start_task >> search_cafe_shop >> clean_from_test_to_raw >> place_details >> more_reviews >> shop_classified >> end_task
+start_task >> search_cafe_shop >> [
+    upload_files, clean_from_test_to_raw] >> place_details >> [upload_files_2, more_reviews] >> upload_files_3 >> shop_classified >> end_task

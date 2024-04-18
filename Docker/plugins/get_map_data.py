@@ -19,6 +19,8 @@ import queue
 import random
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import json
+
 gmaps_logger = logging.getLogger("gmaps_map_data")
 gmaps_logger.setLevel(logging.INFO)
 
@@ -77,12 +79,14 @@ def get_location_from_txt(file_name=('plugins/locations.txt')):
 
 
 def get_places_to_mongodb(params, location):
-    """use place_nearby to get info and insert to mongodb by insert many
+    """use place_nearby to get info and insert to mongodb test_db, and get result to json
 
     Args:
         params (dict): _description_
         location (tuple(lat, lng)): _description_
     """
+    output_json = []
+
     gmaps = googlemaps.Client(key=GOOGLE_PLACES_API_KEY)
     params['location'] = location
 
@@ -117,6 +121,7 @@ def get_places_to_mongodb(params, location):
             places_result = gmaps.places_nearby(**params)
             for result in places_result['results']:
                 result['create_at'] = datetime.utcnow()
+                output_json.append(result)
                 logging.info(
                     f"result place name: {result['name']}")
             try:
@@ -131,6 +136,14 @@ def get_places_to_mongodb(params, location):
                 params['page_token'] = places_result['next_page_token']
             else:
                 break
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        filename = f'files/places_results_{current_date}.json'
+        try:
+            with open(filename, 'a') as json_file:
+                json.dump(output_json, json_file)
+        except FileNotFoundError:
+            with open(filename, 'w') as json_file:
+                json.dump(output_json, json_file)
 
     client.close()
 

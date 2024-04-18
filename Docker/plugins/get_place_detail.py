@@ -16,6 +16,8 @@ import queue
 import random
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import json
+from datetime import datetime
 
 gmaps_logger = logging.getLogger("gmaps_place_detail")
 gmaps_logger.setLevel(logging.INFO)
@@ -58,6 +60,7 @@ def get_all_details():
                        "place_id", "name"
                        ]
         }
+        output_json = []
 
         count = 0
         for document in mongo_collection.find():
@@ -79,7 +82,20 @@ def get_all_details():
                         mongo_collection.replace_one(
                             {'_id': document['_id']}, document)
 
+                        output_json.append(place_detail)
+
         client.close()
         logging.info("Data fetching completed.")
+
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        filename = f'files/places_detail_{current_date}.json'
+        try:
+            with open(filename, 'a') as json_file:
+                json.dump(output_json, json_file)
+            logging.info("Data write to file completed.")
+        except FileNotFoundError:
+            with open(filename, 'w') as json_file:
+                json.dump(output_json, json_file)
+            logging.info("Data write to file completed.")
     except Exception as e:
         logging.error(f"An error occurred: {str(e)}")

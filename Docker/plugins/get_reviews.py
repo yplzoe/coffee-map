@@ -20,6 +20,7 @@ import os
 from module import MongoDB
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import json
 
 selenium_logger = logging.getLogger("selenium_reviews")
 selenium_logger.setLevel(logging.INFO)
@@ -172,6 +173,8 @@ def get_all_shop_reviews():
     mongo_collection = mongo_db['raw_shop_info']
 
     re_collection = mongo_db['more_reviews']
+    output_json = []
+
     count = 0
 
     for document in mongo_collection.find():
@@ -199,7 +202,19 @@ def get_all_shop_reviews():
             "reviews": review_output,
             "create_at": current_utc_time
         }]
+        output_json.append(insert_data[0])
         mongo.insert_list("coffee-map", "more_reviews", insert_data)
 
     client.close()
     mongo.close_connection()
+
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    filename = f'files/more_reviews_{current_date}.json'
+    try:
+        with open(filename, 'a') as json_file:
+            json.dump(output_json, json_file)
+        logging.info("Data write to file completed.")
+    except FileNotFoundError:
+        with open(filename, 'w') as json_file:
+            json.dump(output_json, json_file)
+        logging.info("Data write to file completed.")
