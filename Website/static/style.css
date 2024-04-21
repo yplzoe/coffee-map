@@ -1,0 +1,90 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #fff3e0; /* 淡奶油色背景 */
+  color: #5d4037; /* 深棕色文字 */
+  height: 100vh; /* 使 body 高度為視窗高度 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直居中 */
+  align-items: center; /* 水平居中 */
+  margin: 0;
+  padding: 20px;
+}
+
+.header {
+  font-size: 40px; /* 更新字體大小為 40px */
+  color: #795548; /* 棕色 */
+  margin-bottom: 20px;
+}
+
+.search-container {
+  background-color: #efebe9; /* 淡棕色背景 */
+  border: 1px solid #a1887f; /* 淺棕色邊框 */
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px;
+  width: auto; /* 自適應寬度 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+input[type="text"],
+select {
+  width: 100%; /* 設置為全寬 */
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 2px solid #a1887f; /* 淺棕色邊框 */
+  border-radius: 20px;
+  font-size: 16px;
+  background-color: #ffffff; /* 白色背景 */
+  box-sizing: border-box; /* 新增此行 */
+}
+
+.search-bar {
+  width: 100%; /* 更新為全寬 */
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 2px solid #a1887f; /* 淺棕色邊框 */
+  border-radius: 20px;
+  box-sizing: border-box; /* 確保 padding 和 border 包含在寬度內 */
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 10px;
+  background-color: #6d4c41; /* 深棕色背景 */
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #5d4037; /* 深棕色懸停效果 */
+}
+
+.results {
+  background-color: #fff8e1; /* 非常淡的奶油色 */
+  margin-top: 20px;
+  width: auto; /* 自適應寬度 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.results p {
+  font-size: 16px;
+  color: #5d4037; /* 深棕色文字 */
+}
+
+.district-select {
+  width: 100%; /* 更新為全寬 */
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 2px solid #a1887f; /* 淺棕色邊框 */
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+}

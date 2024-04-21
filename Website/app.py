@@ -1,9 +1,9 @@
+from app_fun import search_db
+from collections import defaultdict
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for
 from flask_restful import Resource, Api
 import logging
 import time
-from collections import defaultdict
-from app_fun import search_db
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
