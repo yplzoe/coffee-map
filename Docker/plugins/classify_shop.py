@@ -4,6 +4,7 @@ from dotenv import load_dotenv, find_dotenv
 from os.path import join, dirname, abspath
 import os
 from pymongo import MongoClient
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -116,9 +117,13 @@ def get_classified_tag():
                 categorize_data_more_reviews(
                     find_latest_review, tag_result)
 
-            document.pop('tags', None)
-            document['tags'] = tag_result
-            raw_collection.replace_one({'_id': document['_id']}, document)
+            current_time = datetime.utcnow()
+            result = raw_collection.update_one(
+                {'_id': id},
+                {'$set': {'tags': tag_result, 'update_at': current_time},
+                 '$setOnInsert': {'create_at': current_time}},
+                upsert=True
+            )
             mongo_logger.info(f"Tags updated for coffee shop: {id}")
 
         client.close()
