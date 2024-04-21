@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coffee Map</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="header">Coffee Map</div>
+    <div class="search-container">
+      <h2>Search by Shop Name</h2>
+      <form action="/search" method="post">
+        <input
+          type="test"
+          name="shop_name"
+          placeholder="Enter shop name..."
+          class="search-bar"
+        />
+        <button type="submit" name="search_by_name">Search</button>
+      </form>
+    </div>
+    <div class="search-container">
+      <h2>Search by Filters</h2>
+      <form action="/search" method="post">
+        <select name="district" class="district-select">
+          <option value="">Select District</option>
+          <option value="all">所有區域</option>
+          <option value="中正區">中正區</option>
+          <option value="萬華區">萬華區</option>
+          <option value="大同區">大同區</option>
+          <option value="中山區">中山區</option>
+          <option value="松山區">松山區</option>
+          <option value="大安區">大安區</option>
+          <option value="信義區">信義區</option>
+          <option value="內湖區">內湖區</option>
+          <option value="南港區">南港區</option>
+          <option value="士林區">士林區</option>
+          <option value="北投區">北投區</option>
+          <option value="文山區">文山區</option>
+
+          <option value="板橋區">板橋區</option>
+          <option value="土城區">土城區</option>
+          <option value="樹林區">樹林區</option>
+          <option value="三峽區">三峽區</option>
+          <option value="鶯歌區">鶯歌區</option>
+          <option value="中和區">中和區</option>
+          <option value="永和區">永和區</option>
+          <option value="三重區">三重區</option>
+          <option value="蘆洲區">蘆洲區</option>
+          <option value="新莊區">新莊區</option>
+          <option value="五股區">五股區</option>
+          <option value="泰山區">泰山區</option>
+          <option value="林口區">林口區</option>
+          <option value="淡水區">淡水區</option>
+          <option value="八里區">八里區</option>
+          <option value="三芝區">三芝區</option>
+          <option value="石門區">石門區</option>
+          <option value="金山區">金山區</option>
+          <option value="萬里區">萬里區</option>
+          <option value="汐止區">汐止區</option>
+          <option value="瑞芳區">瑞芳區</option>
+          <option value="平溪區">平溪區</option>
+          <option value="雙溪區">雙溪區</option>
+          <option value="貢寮區">貢寮區</option>
+          <option value="新店區">新店區</option>
+          <option value="深坑區">深坑區</option>
+          <option value="石碇區">石碇區</option>
+          <option value="坪林區">坪林區</option>
+          <option value="烏來區">烏來區</option>
+        </select>
+        <div class="tags">
+          <label><input type="checkbox" name="tags" value="手沖" /> 手沖</label>
+          <label><input type="checkbox" name="tags" value="咖啡" /> 咖啡</label>
+          <label
+            ><input type="checkbox" name="tags" value="咖啡豆" /> 咖啡豆</label
+          >
+          <label><input type="checkbox" name="tags" value="插座" /> 插座</label>
+          <label><input type="checkbox" name="tags" value="甜點" /> 甜點</label>
+          <label><input type="checkbox" name="tags" value="寵物" /> 寵物</label>
+          <label
+            ><input type="checkbox" name="tags" value="適合工作" />
+            適合工作</label
+          >
+          <label><input type="checkbox" name="tags" value="氛圍" /> 氛圍</label>
+          <label><input type="checkbox" name="tags" value="安靜" /> 安靜</label>
+          <label
+            ><input type="checkbox" name="tags" value="不限時" /> 不限時</label
+          >
+        </div>
+        <button type="submit" name="search_by_filters">Search</button>
+        <div>temp</div>
+      </form>
+    </div>
+  </body>
+</html>
