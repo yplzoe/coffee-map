@@ -64,8 +64,8 @@ def get_all_details():
 
         count = 0
         for document in mongo_collection.find():
-            if count > 0:
-                break
+            # if count > 3:
+            #     break
             count += 1
             place_id = document['doc'].get('place_id')
             logging.info(f'Processing place with ID: {place_id}')
@@ -77,11 +77,11 @@ def get_all_details():
                     place_detail = places_result['result']
                     logging.info(f"get_id: {place_detail['place_id']}")
                     if place_detail['place_id'] == place_id:
-                        document['doc'].pop('place_details', None)
-                        document['doc']['place_details'] = place_detail
-                        mongo_collection.replace_one(
-                            {'_id': document['_id']}, document)
-
+                        current_time = datetime.utcnow()
+                        update_result = mongo_collection.update_one({'doc.place_id': place_id},
+                                                                    {'$set': {'place_detail': place_detail, 'update_at': current_time},
+                                                                     '$setOnInsert': {'create_at': current_time}},
+                                                                    upsert=True)
                         output_json.append(place_detail)
 
         client.close()
