@@ -18,7 +18,6 @@ api = Api(app)
 def search():
     # search_query = None
     search_query = defaultdict(dict)
-
     if request.method == 'POST':
         if 'search_by_name' in request.form:
             search_query['name'] = {'text': request.form['shop_name']}

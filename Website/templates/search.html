@@ -24,8 +24,13 @@
     <div class="results-container">
       {% for result in search_result %} {% if result.place_detail %}
       <div class="result-item">
+<<<<<<< HEAD
         <p class="result-title">{{ result.place_detail.name }}</p>
         <p>{{ result.place_detail.weekday_text }}</p>
+=======
+        <a href="{{ result.url }}" class="result-title">{{ result.title }}</a>
+        <p class="result-snippet">{{ result }}</p>
+>>>>>>> 5794f84 (feature: search by name or tags)
       </div>
       {% endif %} {% endfor %}
     </div>
