@@ -21,7 +21,7 @@ raw_collection = db['raw_shop_info']
 
 def search_db(query):
     output = []
-    logging.info("in search_db")
+    logging.info("enter search_db")
     if 'filters' in query:
         # search with places and tags
         # {'filters': { 'district': selected_district, 'tags': selected_tags}}
@@ -57,7 +57,7 @@ def search_db(query):
             {'_id': 'There is no store that matches.',
              'place_detail': {'name': 'There is no store that matches.'}}
         )
-    logging.info(f"output: {output}")
+    # logging.info(f"output: {output}")
     return output
 
 

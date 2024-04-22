@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scheduling</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #fff3e0; /* 淡奶油色背景 */
+        color: #5d4037; /* 深棕色文字 */
+        height: 100vh; /* 使 body 高度為視窗高度 */
+        display: flex;
+        flex-direction: row; /* 水平排列 */
+        justify-content: center; /* 水平居中 */
+        align-items: stretch; /* 垂直拉伸 */
+        margin: 0;
+        padding: 20px;
+      }
+
+      .left-panel,
+      #map {
+        flex: 1;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .left-panel {
+        background-color: #efebe9; /* 淡棕色背景 */
+        border: 1px solid #a1887f; /* 淺棕色邊框 */
+        border-radius: 10px;
+        margin-right: 10px; /* 間隔 */
+        overflow: auto; /* 超出滾動 */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+      }
+
+      #map {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+      }
+
+      h2 {
+        margin-bottom: 10px;
+        color: #795548; /* 棕色 */
+      }
+
+      select,
+      button {
+        width: 100%; /* 設置為全寬 */
+        padding: 12px;
+        margin-bottom: 10px;
+        border: 2px solid #a1887f; /* 淺棕色邊框 */
+        border-radius: 20px;
+        background-color: #ffffff; /* 白色背景 */
+        font-size: 16px;
+        cursor: pointer;
+        box-sizing: border-box; /* 新增此行 */
+      }
+
+      button {
+        background-color: #6d4c41; /* 深棕色背景 */
+        color: white;
+      }
+
+      button:hover {
+        background-color: #5d4037; /* 深棕色懸停效果 */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="left-panel">
+      <h2>Select Shops</h2>
+      <input type="text" id="shop-input" placeholder="Enter shop name ..." />
+      <button onclick="searchShops()">Add Shop</button>
+      <div id="shop-results">
+        <!-- Results appear here -->
+      </div>
+      <button type="button" onclick="submitShops()">GO!</button>
+    </div>
+    <div id="map">
+      <!-- Google Maps will be embedded here -->
+    </div>
+
+    <script>
+      function searchShops() {
+        const input = document.getElementById("shop-input").value;
+        fetch(`/search-shops?name=${encodeURIComponent(input)}`)
+          .then((response) => response.json())
+          .then((data) => {
+            const results = document.getElementById("shop-results");
+            if (data.length > 0) {
+              data.forEach((shop) => {
+                const div = document.createElement("div");
+                div.className = "shop-item";
+                div.innerHTML = `<span class="shop-name">${shop._id}</span>
+                                             <button class="delete-btn" onclick="deleteShop(this)">X</button>`;
+                results.appendChild(div);
+              });
+            } else {
+              alert("No shops found with that name.");
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function deleteShop(button) {
+        // Remove the shop item from the DOM
+        button.parentNode.remove();
+      }
+      function submitShops() {
+        const shopItems = document.querySelectorAll(".shop-name");
+        const shopNames = Array.from(shopItems).map((item) => item.textContent);
+        alert("Selected Shops: " + shopNames.join(", "));
+      }
+      function initMap() {
+        // var map = new google.maps.Map(document.getElementById("map"), {
+        //   center: { lat: -34.397, lng: 150.644 },
+        //   zoom: 8,
+        // });
+      }
+
+      function loadGoogleMaps() {
+        // var script = document.createElement("script");
+        // script.src =
+        //   "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap";
+        // script.async = true;
+        // script.defer = true;
+        // document.head.appendChild(script);
+      }
+
+      //   window.onload = loadGoogleMaps;
+    </script>
+  </body>
+</html>

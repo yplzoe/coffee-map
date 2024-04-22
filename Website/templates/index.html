@@ -8,9 +8,28 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    <style>
+      .schedule-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
-    <div class="header">Coffee Map</div>
+    <div class="header">
+      Coffee Map
+      <button
+        class="schedule-button"
+        onclick="window.location.href='/scheduling'"
+      >
+        Scheduling
+      </button>
+    </div>
     <div class="search-container">
       <h2>Search by Shop Name</h2>
       <form action="/search" method="post">
