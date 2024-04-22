@@ -31,7 +31,7 @@ def search_shops():
     else:
         output = shops
     # logging.info(f"output: {output}")
-    return jsonify(shops)
+    return jsonify(shops), 200
 
 
 @app.route('/get-scheduling', methods=['GET', 'POST'])
@@ -40,7 +40,7 @@ def get_scheduling():
     shop_names = data['shops']
     logging.info(f"shop name: {shop_names}")
 
-    return jsonify({'status': 'success', 'received_shops': shop_names})
+    return jsonify({'status': 'success', 'received_shops': shop_names}), 200
 
 
 @app.route('/scheduling', methods=['GET', 'POST'])

@@ -78,6 +78,15 @@
       <button type="button" onclick="submitShops()">GO!</button>
     </div>
     <div id="map">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d20095.399390171235!2d121.52060443110722!3d25.051269687185684!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3442ab4f0eaf4383%3A0x97ab72af841c718!2sAppWorks%20School!5e0!3m2!1szh-TW!2stw!4v1713772948501!5m2!1szh-TW!2stw"
+        width="600"
+        height="450"
+        style="border: 0"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
       <!-- Google Maps will be embedded here -->
     </div>
 
@@ -107,10 +116,14 @@
         // Remove the shop item from the DOM
         button.parentNode.remove();
       }
+
+      function renderMap() {
+        const MAP = document.getElementById("map");
+      }
+
       function submitShops() {
         const shopItems = document.querySelectorAll(".shop-name");
         const shopNames = Array.from(shopItems).map((item) => item.textContent);
-        // alert("Selected Shops: " + shopNames.join(", "));
         fetch("/get-scheduling", {
           method: "POST",
           headers: {
@@ -121,28 +134,33 @@
           .then((response) => response.json())
           .then((data) => {
             console.log("Success: ", data);
+            renderMap(data);
           })
           .catch((error) => {
             console.error("Error: ", error);
           });
       }
+
+      //   TODO: get key
+      require("dotenv").config();
+      var apiKey = process.env.GOOGLE_MAPS_API_KEY;
       function initMap() {
-        // var map = new google.maps.Map(document.getElementById("map"), {
-        //   center: { lat: -34.397, lng: 150.644 },
-        //   zoom: 8,
-        // });
+        var map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: 25.03881221390869, lng: 121.53236706116652 },
+          zoom: 8,
+        });
       }
 
       function loadGoogleMaps() {
-        // var script = document.createElement("script");
-        // script.src =
-        //   "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap";
-        // script.async = true;
-        // script.defer = true;
-        // document.head.appendChild(script);
+        var script = document.createElement("script");
+        script.src =
+          "https://maps.googleapis.com/maps/api/js?key=${ apiKey }&callback=initMap";
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
       }
 
-      //   window.onload = loadGoogleMaps;
+      window.onload = loadGoogleMaps;
     </script>
   </body>
 </html>
