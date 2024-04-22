@@ -110,7 +110,21 @@
       function submitShops() {
         const shopItems = document.querySelectorAll(".shop-name");
         const shopNames = Array.from(shopItems).map((item) => item.textContent);
-        alert("Selected Shops: " + shopNames.join(", "));
+        // alert("Selected Shops: " + shopNames.join(", "));
+        fetch("/get-scheduling", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ shops: shopNames }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success: ", data);
+          })
+          .catch((error) => {
+            console.error("Error: ", error);
+          });
       }
       function initMap() {
         // var map = new google.maps.Map(document.getElementById("map"), {

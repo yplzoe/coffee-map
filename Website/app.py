@@ -30,9 +30,17 @@ def search_shops():
         output.append(shops[0])
     else:
         output = shops
-    logging.info(f"output: {output}")
-    logging.info(f"after jsonify: {output}")
+    # logging.info(f"output: {output}")
     return jsonify(shops)
+
+
+@app.route('/get-scheduling', methods=['GET', 'POST'])
+def get_scheduling():
+    data = request.json
+    shop_names = data['shops']
+    logging.info(f"shop name: {shop_names}")
+
+    return jsonify({'status': 'success', 'received_shops': shop_names})
 
 
 @app.route('/scheduling', methods=['GET', 'POST'])
