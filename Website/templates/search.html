@@ -24,13 +24,20 @@
     <div class="results-container">
       {% for result in search_result %} {% if result.place_detail %}
       <div class="result-item">
-<<<<<<< HEAD
-        <p class="result-title">{{ result.place_detail.name }}</p>
-        <p>{{ result.place_detail.weekday_text }}</p>
-=======
-        <a href="{{ result.url }}" class="result-title">{{ result.title }}</a>
-        <p class="result-snippet">{{ result }}</p>
->>>>>>> 5794f84 (feature: search by name or tags)
+        <p class="result-title">{{ result._id }}</p>
+        {% if result.place_detail.opening_hours %}
+        <p>Total Ratings: {{ result.doc.user_ratings_total }}</p>
+        <p>Rating: {{ result.doc.rating }}</p>
+        <p>Tags: {{ result.tags }}</p>
+        <p>
+          Opening Hours: {{ result.place_detail.opening_hours.weekday_text }}
+        </p>
+        <a
+          href="{% if result.place_detail.website %}{{ result.place_detail.website }}{% else %}https://www.google.com/maps/place?q={{ result.place_detail.name }}{% endif %}"
+          >More Info</a
+        >
+
+        {% endif %}
       </div>
       {% endif %} {% endfor %}
     </div>

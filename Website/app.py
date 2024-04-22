@@ -33,7 +33,7 @@ def search():
     return render_template('search.html', search_result=results)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@ app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
 

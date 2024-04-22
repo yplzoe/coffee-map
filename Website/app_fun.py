@@ -22,11 +22,14 @@ raw_collection = db['raw_shop_info']
 def search_db(query):
     output = []
     logging.info("in search_db")
-    if 'filter' in query:
+    if 'filters' in query:
         # search with places and tags
-        # {'filter': { 'district': selected_district, 'tags': selected_tags}}
-        district = query['filter']['district']
-        search_tags = query['filter']['tags']
+        # {'filters': { 'district': selected_district, 'tags': selected_tags}}
+        district = query['filters']['district']
+        search_tags = query['filters']['tags']
+        if district == 'all' or district == "":
+            district = '北市'
+
         query_conditions = [{'tags.' + tag: {'$exists': True}}
                             for tag in search_tags]
         query_conditions.append({
@@ -50,16 +53,18 @@ def search_db(query):
         #     logging.info(f"search result: {result['_id']}")
         #     output.append(result)
     if len(output) == 0:
-        output.append({
-            '_id': 'There is no store that matches.'
-        })
+        output.append(
+            {'_id': 'There is no store that matches.',
+             'place_detail': {'name': 'There is no store that matches.'}}
+        )
+    logging.info(f"output: {output}")
     return output
 
 
-query = {'filter': {'district': '信義區', 'tags': ['comfort', 'quiet']}}
-result = search_db(query)
-print(result[0])
+# query = {'filters': {'district': '中正區', 'tags': ['手沖']}}
+# result = search_db(query)
+# print(result[0])
 
-query_name = {'name': {'text': 'starbucks'}}
-result_name = search_db(query_name)
-print(len(result_name))
+# query_name = {'name': {'text': 'starbucks'}}
+# result_name = search_db(query_name)
+# print(len(result_name))
