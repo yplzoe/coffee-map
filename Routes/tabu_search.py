@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from pprint import pprint
 import time
 import logging
@@ -13,7 +13,7 @@ def object_function(solution, dis_dict):
     for start, end in zip(solution[:-1], solution[1:]):
         total_time += dis_dict[str(start)][str(end)]
 
-    return -total_time
+    return total_time
 
 
 def get_neighbors(solution):
@@ -33,7 +33,7 @@ def tabu_search(initial_solution, max_iterations, tabu_list_size, dis_dict):
     best_obj = object_function(best_solution, dis_dict)
     current_solution = initial_solution
     # cur_obj = object_function(current_solution, dis_dict)
-    tabu_list = {}
+    tabu_list = OrderedDict()
 
     for _ in range(max_iterations):
         neighbors = get_neighbors(current_solution)
@@ -53,7 +53,7 @@ def tabu_search(initial_solution, max_iterations, tabu_list_size, dis_dict):
         current_solution = best_neighbor
         tabu_list[str(best_neighbor)] = best_neighbor_obj
         if len(tabu_list) > tabu_list_size:
-            tabu_list.pop(0)
+            tabu_list.popitem(last=False)
 
         # minimum
         if best_neighbor_obj < best_obj:
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     5. 考慮營業時間
     """
     start_time = time.time()
-    num_node = 40
+    num_node = 5
 
     initial_solution = [i for i in range(num_node)]  # TODO: from far to close
     dis_dict, stay_dict = rand_graph(
