@@ -39,6 +39,7 @@ def get_scheduling():
     data = request.json
     shop_names = data['shops']
     logging.info(f"shop name: {shop_names}")
+    # get transit time for each point
 
     return jsonify({'status': 'success', 'received_shops': shop_names}), 200
 

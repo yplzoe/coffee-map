@@ -21,7 +21,7 @@ root_path = abspath(join(parent_path, os.pardir))
 dotenv_path = join(root_path, '.env')
 load_dotenv(dotenv_path, override=True)
 
-GOOGLE_PLACES_API_KEY = os.environ.get("OLD_GOOGLE_PLACES_API_KEY")
+GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY")
 
 uri = os.environ.get("MONGO_URI")
 client = MongoClient(uri)
@@ -67,15 +67,16 @@ def get_route(origin, destination, travel_mode):
     response = requests.post(url, headers=headers, json=payload)
     result = response.json()
 
-    add_to_mongo(origin, destination, result)
+    add_to_mongo(origin, destination, result, travel_mode)
 
     return result
 
 
-def add_to_mongo(origin, destination, data):
+def add_to_mongo(origin, destination, data, travel_mode):
     collection = db['routes']
     data['origin'] = origin
     data['destination'] = destination
+    data['travel_mode'] = travel_mode
     create_at = datetime.utcnow()
     data['create_at'] = create_at
     try:
