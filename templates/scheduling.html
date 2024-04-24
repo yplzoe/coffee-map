@@ -4,6 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scheduling</title>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -15,6 +27,16 @@
         justify-content: center; /* 水平居中 */
         align-items: stretch; /* 垂直拉伸 */
         margin: 0;
+        padding: 20px;
+      }
+      .container {
+        display: flex;
+        width: 100%;
+      }
+
+      .left-panel,
+      .right-panel {
+        flex: 1;
         padding: 20px;
       }
 
@@ -37,6 +59,18 @@
       #map {
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+      }
+      #status-message {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 16px;
+        color: #5d4037;
+      }
+      .leaflet-container {
+        height: 400px;
+        width: 600px;
+        max-width: 100%;
+        max-height: 100%;
       }
 
       h2 {
@@ -68,26 +102,19 @@
     </style>
   </head>
   <body>
-    <div class="left-panel">
-      <h2>Select Shops</h2>
-      <input type="text" id="shop-input" placeholder="Enter shop name ..." />
-      <button onclick="searchShops()">Add Shop</button>
-      <div id="shop-results">
-        <!-- Results appear here -->
+    <div class="container">
+      <div class="left-panel">
+        <h2>Select Shops</h2>
+        <input type="text" id="shop-input" placeholder="Enter shop name ..." />
+        <button onclick="searchShops()">Add Shop</button>
+        <div id="shop-results"></div>
+        <button type="button" onclick="submitShops()">GO!</button>
       </div>
-      <button type="button" onclick="submitShops()">GO!</button>
-    </div>
-    <div id="map">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d20095.399390171235!2d121.52060443110722!3d25.051269687185684!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3442ab4f0eaf4383%3A0x97ab72af841c718!2sAppWorks%20School!5e0!3m2!1szh-TW!2stw!4v1713772948501!5m2!1szh-TW!2stw"
-        width="600"
-        height="450"
-        style="border: 0"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-      ></iframe>
-      <!-- Google Maps will be embedded here -->
+
+      <div class="right-panel">
+        <div id="map"></div>
+        <div id="status-message"></div>
+      </div>
     </div>
 
     <script>
@@ -102,7 +129,7 @@
                 const div = document.createElement("div");
                 div.className = "shop-item";
                 div.innerHTML = `<span class="shop-name">${shop._id}</span>
-                                             <button class="delete-btn" onclick="deleteShop(this)">X</button>`;
+                                <button class="delete-btn" onclick="deleteShop(this)">X</button>`;
                 results.appendChild(div);
               });
             } else {
@@ -113,12 +140,7 @@
       }
 
       function deleteShop(button) {
-        // Remove the shop item from the DOM
         button.parentNode.remove();
-      }
-
-      function renderMap() {
-        const MAP = document.getElementById("map");
       }
 
       function submitShops() {
@@ -134,33 +156,44 @@
           .then((response) => response.json())
           .then((data) => {
             console.log("Success: ", data);
-            renderMap(data);
+            const drawRouteLayer = L.geoJSON(data.best_route, {
+              filter(feature, layer) {
+                if (feature.properties) {
+                  return feature.properties.underConstruction !== undefined
+                    ? !feature.properties.underConstruction
+                    : true;
+                }
+                return false;
+              },
+            }).addTo(map);
+            const results = document.getElementById("status-message");
+            data.best_solution.forEach((shop, index) => {
+              const div = document.createElement("div");
+              div.className = "shop-item";
+              div.innerHTML = `<span class="shop-name">${
+                index + 1
+              }. ${shop}</span>`;
+              results.appendChild(div);
+            });
           })
           .catch((error) => {
             console.error("Error: ", error);
           });
       }
 
-      //   TODO: get key
-      require("dotenv").config();
-      var apiKey = process.env.GOOGLE_MAPS_API_KEY;
-      function initMap() {
-        var map = new google.maps.Map(document.getElementById("map"), {
-          center: { lat: 25.03881221390869, lng: 121.53236706116652 },
-          zoom: 8,
-        });
-      }
+      const center = [25.038732612636068, 121.53235946764482];
+      const map = L.map("map").setView(center, 13);
 
-      function loadGoogleMaps() {
-        var script = document.createElement("script");
-        script.src =
-          "https://maps.googleapis.com/maps/api/js?key=${ apiKey }&callback=initMap";
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-      }
+      const tiles = L.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 19,
+          attribution:
+            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }
+      ).addTo(map);
 
-      window.onload = loadGoogleMaps;
+      // const marker = L.marker(center).addTo(map);
     </script>
   </body>
 </html>

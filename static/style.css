@@ -80,11 +80,21 @@ button:hover {
 }
 
 .district-select {
-  width: 100%; /* 更新為全寬 */
+  flex: 1; /* 讓下拉選單填充剩餘空間 */
   padding: 12px;
-  margin-bottom: 10px;
-  border: 2px solid #a1887f; /* 淺棕色邊框 */
+  margin-right: 10px; /* 給 Nearby Me 留出空間 */
+  border: 2px solid #a1887f;
   border-radius: 20px;
   font-size: 16px;
-  cursor: pointer;
+  background-color: #ffffff; /* 白色背景 */
+}
+
+.filter-container {
+  display: flex;
+  align-items: center; /* 垂直居中對齊 */
+  margin-bottom: 10px; /* 適當的間隔 */
+}
+
+input[type="checkbox"] {
+  margin: 0 10px; /* 適當的間隔 */
 }

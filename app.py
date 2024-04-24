@@ -6,6 +6,9 @@ import logging
 import time
 import datetime
 from bson.objectid import ObjectId
+import Routes
+import Routes.tabu_search as tabu_search
+import Routes.get_travel_time_dictionary as get_travel_time_dictionary
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -31,7 +34,7 @@ def search_shops():
     else:
         output = shops
     # logging.info(f"output: {output}")
-    return jsonify(shops), 200
+    return jsonify(output), 200
 
 
 @app.route('/get-scheduling', methods=['GET', 'POST'])
@@ -39,9 +42,19 @@ def get_scheduling():
     data = request.json
     shop_names = data['shops']
     logging.info(f"shop name: {shop_names}")
-    # get transit time for each point
+    travel_mode = "DRIVE"
+    dis_dict, shortest_index, full_routes = get_travel_time_dictionary.get_route_dict(
+        shop_names, travel_mode)
+    best_solution, best_obj = tabu_search.tabu_search(
+        shop_names, 100, 2**len(shop_names), dis_dict)
+    logging.info(f"best_solution: {best_solution}, best_obj: {best_obj}")
+    polyline_list = get_travel_time_dictionary.return_all_path(
+        best_solution, shortest_index, full_routes)
+    # logging.info(f"polyline: {polyline_list}")
+    geojson_list = get_travel_time_dictionary.turn_into_geojson(polyline_list)
+    logging.info(f'geojson: {geojson_list}')
 
-    return jsonify({'status': 'success', 'received_shops': shop_names}), 200
+    return jsonify({'status': 'success', 'best_route': geojson_list, 'best_solution': best_solution, 'best_obj': best_obj}), 200
 
 
 @app.route('/scheduling', methods=['GET', 'POST'])
