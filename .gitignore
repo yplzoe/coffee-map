@@ -10,6 +10,9 @@ test*
 #logs
 [Ll]ogs/
 
+#node modules
+node_modules/
+
 # C extensions
 *.so
 
