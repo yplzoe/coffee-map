@@ -1,4 +1,4 @@
-from app_fun import search_db
+from app_fun import search_db, get_lat_lng
 from collections import defaultdict
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for
 from flask_restful import Resource, Api
@@ -26,6 +26,9 @@ def search_shops():
     search_query = defaultdict(dict)
     search_query['name'] = {'text': shop_name}
     shops = search_db(search_query)
+    if shops[0]['_id'] == 'There is no store that matches.':
+        return jsonify({'status': 'fail'}), 200
+
     for ss in shops:
         ss['doc']['_id'] = ss['doc']['_id'].__str__()
     output = []
@@ -33,8 +36,10 @@ def search_shops():
         output.append(shops[0])
     else:
         output = shops
+    shop_name = output[0]['_id']
+    shop_location = get_lat_lng(shop_name)
     # logging.info(f"output: {output}")
-    return jsonify(output), 200
+    return jsonify({'status': 'success', 'shop_info': output, 'shop_location': shop_location}), 200
 
 
 @app.route('/get-scheduling', methods=['GET', 'POST'])

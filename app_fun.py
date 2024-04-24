@@ -61,6 +61,19 @@ def search_db(query):
     return output
 
 
+def get_lat_lng(shop_name):
+    query = {'_id': shop_name}
+    result = raw_collection.find_one(query)
+    # print(result)
+    if result:
+        try:
+            return result['doc']['geometry']['location']
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            return None
+    else:
+        return None
+
 # query = {'filters': {'district': '中正區', 'tags': ['手沖']}}
 # result = search_db(query)
 # print(result[0])
@@ -68,3 +81,7 @@ def search_db(query):
 # query_name = {'name': {'text': 'starbucks'}}
 # result_name = search_db(query_name)
 # print(len(result_name))
+
+
+shop_name = '光進來的地方'
+get_lat_lng(shop_name)
