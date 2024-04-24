@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scheduling</title>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #fff3e0; /* 淡奶油色背景 */
+        color: #5d4037; /* 深棕色文字 */
+        height: 100vh; /* 使 body 高度為視窗高度 */
+        display: flex;
+        flex-direction: row; /* 水平排列 */
+        justify-content: center; /* 水平居中 */
+        align-items: stretch; /* 垂直拉伸 */
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        display: flex;
+        width: 100%;
+      }
+
+      .left-panel,
+      .right-panel {
+        flex: 1;
+        padding: 20px;
+      }
+
+      .left-panel,
+      #map {
+        flex: 1;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .left-panel {
+        background-color: #efebe9; /* 淡棕色背景 */
+        border: 1px solid #a1887f; /* 淺棕色邊框 */
+        border-radius: 10px;
+        margin-right: 10px; /* 間隔 */
+        overflow: auto; /* 超出滾動 */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+      }
+
+      #map {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+      }
+      #status-message {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 16px;
+        color: #5d4037;
+      }
+      .leaflet-container {
+        height: 400px;
+        width: 600px;
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      h2 {
+        margin-bottom: 10px;
+        color: #795548; /* 棕色 */
+      }
+
+      select,
+      button {
+        width: 100%; /* 設置為全寬 */
+        padding: 12px;
+        margin-bottom: 10px;
+        border: 2px solid #a1887f; /* 淺棕色邊框 */
+        border-radius: 20px;
+        background-color: #ffffff; /* 白色背景 */
+        font-size: 16px;
+        cursor: pointer;
+        box-sizing: border-box; /* 新增此行 */
+      }
+
+      button {
+        background-color: #6d4c41; /* 深棕色背景 */
+        color: white;
+      }
+
+      button:hover {
+        background-color: #5d4037; /* 深棕色懸停效果 */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="left-panel">
+        <h2>Select Shops</h2>
+        <input type="text" id="shop-input" placeholder="Enter shop name ..." />
+        <button onclick="searchShops()">Add Shop</button>
+        <div id="shop-results"></div>
+        <button type="button" onclick="submitShops()">GO!</button>
+      </div>
+
+      <div class="right-panel">
+        <div id="map"></div>
+        <div id="status-message"></div>
+      </div>
+    </div>
+
+    <script>
+      var markers = {};
+      var markers_count = 0;
+      // var drawRouteLayer = new L.LayerGroup();
+      // drawRouteLayer.addTo(map);
+      var drawRouteLayer = null;
+
+      function searchShops() {
+        const input = document.getElementById("shop-input").value;
+        fetch(`/search-shops?name=${encodeURIComponent(input)}`)
+          .then((response) => response.json())
+          .then((data) => {
+            const results = document.getElementById("shop-results");
+            console.log("Success: ", data);
+            console.log(data.status);
+            if (data.status == "success") {
+              data.shop_info.forEach((shop) => {
+                const div = document.createElement("div");
+                div.className = "shop-item";
+                const shopName = shop._id;
+                div.innerHTML = `<span class="shop-name">${shopName}</span>
+                                <button class="delete-btn" onclick="deleteShop(${markers_count})">X</button>`;
+                results.appendChild(div);
+
+                const marker = L.marker(data.shop_location).addTo(map);
+                marker.bindPopup(`<b>${shop._id}</b>`).openPopup();
+                markers[markers_count] = marker;
+                markers_count += 1;
+              });
+            } else {
+              alert("No shops found with that name.");
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function deleteShop(shopId) {
+        const shopElement = document.querySelector(
+          `button[onclick="deleteShop(${shopId})"]`
+        ).parentNode;
+        shopElement.remove();
+        // map.removeLayer(drawRouteLayer);
+
+        // Remove the marker from the map
+        if (markers[shopId]) {
+          map.removeLayer(markers[shopId]);
+          delete markers[shopId]; // Clean up the reference
+        }
+
+        document.querySelectorAll(".status-shop-item").forEach((element) => {
+          element.remove();
+        });
+
+        if (drawRouteLayer) {
+          map.removeLayer(drawRouteLayer);
+          drawRouteLayer = null; // Reset the layer reference
+        }
+      }
+
+      function submitShops() {
+        const shopItems = document.querySelectorAll(".shop-name");
+        const shopNames = Array.from(shopItems).map((item) => item.textContent);
+        fetch("/get-scheduling", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ shops: shopNames }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success: ", data);
+            drawRouteLayer = L.geoJSON(data.best_route, {
+              filter(feature, layer) {
+                if (feature.properties) {
+                  return feature.properties.underConstruction !== undefined
+                    ? !feature.properties.underConstruction
+                    : true;
+                }
+                return false;
+              },
+            }).addTo(map);
+            // drawRouteLayer.addLayer(data.best_route);
+
+            const results = document.getElementById("status-message");
+            data.best_solution.forEach((shop, index) => {
+              const div = document.createElement("div");
+              div.className = "status-shop-item";
+              div.innerHTML = `<span class="status-shop-name">${
+                index + 1
+              }. ${shop}</span>`;
+              results.appendChild(div);
+            });
+          })
+          .catch((error) => {
+            console.error("Error: ", error);
+          });
+      }
+
+      const center = [25.038732612636068, 121.53235946764482];
+      const map = L.map("map").setView(center, 13);
+
+      const tiles = L.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 19,
+          attribution:
+            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }
+      ).addTo(map);
+    </script>
+  </body>
+</html>

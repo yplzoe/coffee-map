@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Results</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="search-bar-container">
+      <form action="/search" method="post">
+        <input
+          type="text"
+          name="search"
+          placeholder="Search again..."
+          value="{{ search_query }}"
+        />
+        <button type="submit">Search</button>
+      </form>
+    </div>
+    <div class="results-container">
+      {% for result in search_result %} {% if result.place_detail %}
+      <div class="result-item">
+        <p class="result-title">{{ result._id }}</p>
+        {% if result.place_detail.opening_hours %}
+        <p>Total Ratings: {{ result.doc.user_ratings_total }}</p>
+        <p>Rating: {{ result.doc.rating }}</p>
+        <p>Tags: {{ result.tags }}</p>
+        <p>
+          Opening Hours: {{ result.place_detail.opening_hours.weekday_text }}
+        </p>
+        <a
+          href="{% if result.place_detail.website %}{{ result.place_detail.website }}{% else %}https://www.google.com/maps/place?q={{ result.place_detail.name }}{% endif %}"
+          >More Info</a
+        >
+
+        {% endif %}
+      </div>
+      {% endif %} {% endfor %}
+    </div>
+  </body>
+</html>
