@@ -5,6 +5,7 @@ __pycache__/
 
 #test
 test/
+test*
 
 #logs
 [Ll]ogs/
