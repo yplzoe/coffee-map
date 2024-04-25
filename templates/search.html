@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Search Results</title>
+
+    <script
+      src="https://cdn.plot.ly/plotly-2.30.0.min.js"
+      charset="utf-8"
+    ></script>
+
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
@@ -24,11 +30,14 @@
     <div class="results-container">
       {% for result in search_result %} {% if result.place_detail %}
       <div class="result-item">
-        <p class="result-title">{{ result._id }}</p>
+        <p class="result-title"><strong>{{ result._id }}</strong></p>
         {% if result.place_detail.opening_hours %}
-        <p>Total Ratings: {{ result.doc.user_ratings_total }}</p>
-        <p>Rating: {{ result.doc.rating }}</p>
-        <p>Tags: {{ result.tags }}</p>
+        <p>
+          Total Ratings: {{ result.doc.user_ratings_total }} Rating: {{
+          result.doc.rating }}
+        </p>
+        <!-- <p>Tags: {{ result.for_radar }}</p> -->
+        <div id="radar-{{loop.index }}" style="width: 50%; height: 300px"></div>
         <p>
           Opening Hours: {{ result.place_detail.opening_hours.weekday_text }}
         </p>
@@ -42,4 +51,34 @@
       {% endif %} {% endfor %}
     </div>
   </body>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const results =  {{ search_result|tojson }};
+      console.log(results);
+      results.forEach((result, index) => {
+        if (result.place_detail && result.for_radar) {
+          const data = [
+            {
+              type: "scatterpolar",
+              r: result.for_radar.count,
+              theta: result.for_radar.tag,
+              fill: "toself",
+            },
+          ];
+
+          const layout = {
+            polar: {
+              radialaxis: {
+                visible: true,
+                // range: [0, 10],
+              },
+            },
+            // title: `${result._id}`,
+          };
+
+          Plotly.newPlot(`radar-${index + 1}`, data, layout);
+        }
+      });
+    });
+  </script>
 </html>

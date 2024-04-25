@@ -3,7 +3,10 @@ from os.path import join, dirname, abspath
 import os
 import pymongo
 from pymongo import MongoClient
+import plotly.express as px
+import pandas as pd
 import logging
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
 )
@@ -78,6 +81,38 @@ def get_lat_lng(shop_name):
 def calculate_lat_lng_dis(lat, lng):
     pass
 
+
+def data_for_radars(data, selected_tags):
+    tags = data["tags"]
+    df = pd.DataFrame(list(tags.items()), columns=['tag', 'count'])
+    df.sort_values(
+        by=['count'], inplace=True, ignore_index=True, ascending=False)
+
+    if len(selected_tags) < 5:
+        additional_tags = df[~df['tag'].isin(
+            selected_tags)].head(5 - len(selected_tags))
+        selected_tags.extend(additional_tags['tag'].tolist())
+
+    selected_df = df.loc[df['tag'].isin(selected_tags)]
+    selected_df = selected_df.to_dict(orient='list')
+    return selected_df
+
+
+def plot_radars(data, selected_tags):
+    tags = data["tags"]
+    df = pd.DataFrame(list(tags.items()), columns=['tag', 'count'])
+    df.sort_values(
+        by=['count'], inplace=True, ignore_index=True, ascending=False)
+
+    if len(selected_tags) < 5:
+        additional_tags = df[~df['tag'].isin(
+            selected_tags)].head(5 - len(selected_tags))
+        selected_tags.extend(additional_tags['tag'].tolist())
+
+    selected_df = df.loc[df['tag'].isin(selected_tags)]
+    fig = px.line_polar(selected_df, r='count', theta='tag', line_close=True)
+    return fig
+
 # query = {'filters': {'district': '中正區', 'tags': ['手沖']}}
 # result = search_db(query)
 # print(result[0])
@@ -88,4 +123,4 @@ def calculate_lat_lng_dis(lat, lng):
 
 
 shop_name = '光進來的地方'
-get_lat_lng(shop_name)
+# get_lat_lng(shop_name)

@@ -1,4 +1,4 @@
-from app_fun import search_db, get_lat_lng
+from app_fun import search_db, get_lat_lng, data_for_radars
 from collections import defaultdict
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for
 from flask_restful import Resource, Api
@@ -72,6 +72,7 @@ def search():
     # search_query = None
     search_query = defaultdict(dict)
     if request.method == 'POST':
+        selected_tags = []
         if 'search_by_name' in request.form:
             search_query['name'] = {'text': request.form['shop_name']}
         elif 'search_by_filters' in request.form:
@@ -81,11 +82,19 @@ def search():
             selected_tags = request.form.getlist('tags')
             search_query['filters'] = {
                 'district': selected_district, 'tags': selected_tags}
-    logging.info(f"search query: {search_query}")
-    # 根據條件得到所有店家
-    results = search_db(search_query)  # list of shop info
+        logging.info(f"search query: {search_query}")
 
-    return render_template('search.html', search_result=results)
+        results = search_db(search_query)  # list of shop info
+        len_results = len(results)
+        for ss in results:
+            ss['doc']['_id'] = ss['doc']['_id'].__str__()
+        for i in range(len_results):
+            if 'tags' in results[i]:
+                tag_data = data_for_radars(results[i], selected_tags)
+                results[i]['for_radar'] = tag_data
+        logging.info(f"return data: {results}")
+        return render_template('search.html', search_result=results)
+    return redirect(url_for('index'))
 
 
 @ app.route('/', methods=['GET', 'POST'])
