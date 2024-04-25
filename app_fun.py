@@ -1,4 +1,4 @@
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 from os.path import join, dirname, abspath
 import os
 import pymongo
@@ -30,13 +30,23 @@ def search_db(query):
         # {'filters': { 'district': selected_district, 'tags': selected_tags}}
         district = query['filters']['district']
         search_tags = query['filters']['tags']
+
         if district == 'all' or district == "":
             district = '北市'
 
         query_conditions = [{'tags.' + tag: {'$exists': True}}
                             for tag in search_tags]
-        query_conditions.append({
-            'place_detail.formatted_address': {'$regex': district}})
+
+        if query['filters']['user_location'] != ['', '']:
+            user_location = query['filters']['user_location']  # str
+            user_location = [float(user_location[0]), float(user_location[1])]
+            user_query = {'geometry': {'$geoWithin': {"$centerSphere": [
+                user_location, 0.66/6378.1]}}}
+            query_conditions.append(user_query)
+        else:
+            query_conditions.append({
+                'place_detail.formatted_address': {'$regex': district}})
+
         query = {'$and': query_conditions}
         output = list(raw_collection.find(
             query).sort('doc.user_ratings_total', -1))

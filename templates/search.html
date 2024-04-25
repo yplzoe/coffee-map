@@ -53,7 +53,7 @@
   </body>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const results =  {{ search_result|tojson }};
+      const results =  {{ search_result|tojson }}; // server-side render
       console.log(results);
       results.forEach((result, index) => {
         if (result.place_detail && result.for_radar) {

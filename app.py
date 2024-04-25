@@ -77,11 +77,11 @@ def search():
             search_query['name'] = {'text': request.form['shop_name']}
         elif 'search_by_filters' in request.form:
             selected_district = request.form['district']
-            selected_lat_lng = [request.form['latitude'],
-                                request.form['longitude']]
+            selected_lat_lng = [
+                request.form['longitude'], request.form['latitude']]
             selected_tags = request.form.getlist('tags')
             search_query['filters'] = {
-                'district': selected_district, 'tags': selected_tags}
+                'district': selected_district, 'tags': selected_tags, 'user_location': selected_lat_lng}
         logging.info(f"search query: {search_query}")
 
         results = search_db(search_query)  # list of shop info
@@ -92,7 +92,7 @@ def search():
             if 'tags' in results[i]:
                 tag_data = data_for_radars(results[i], selected_tags)
                 results[i]['for_radar'] = tag_data
-        logging.info(f"return data: {results}")
+        # logging.info(f"return data: {results}")
         return render_template('search.html', search_result=results)
     return redirect(url_for('index'))
 
