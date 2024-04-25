@@ -5,7 +5,7 @@ body {
   height: 100vh; /* 使 body 高度為視窗高度 */
   display: flex;
   flex-direction: column;
-  justify-content: center; /* 垂直居中 */
+  /* justify-content: center; 垂直居中 */
   align-items: center; /* 水平居中 */
   margin: 0;
   padding: 20px;
