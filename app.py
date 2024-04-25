@@ -67,7 +67,7 @@ def route():
     return render_template('scheduling.html')
 
 
-@app.route('/search', methods=['POST'])
+@app.route('/search', methods=['GET', 'POST'])
 def search():
     # search_query = None
     search_query = defaultdict(dict)
@@ -76,6 +76,8 @@ def search():
             search_query['name'] = {'text': request.form['shop_name']}
         elif 'search_by_filters' in request.form:
             selected_district = request.form['district']
+            selected_lat_lng = [request.form['latitude'],
+                                request.form['longitude']]
             selected_tags = request.form.getlist('tags')
             search_query['filters'] = {
                 'district': selected_district, 'tags': selected_tags}

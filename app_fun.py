@@ -74,6 +74,10 @@ def get_lat_lng(shop_name):
     else:
         return None
 
+
+def calculate_lat_lng_dis(lat, lng):
+    pass
+
 # query = {'filters': {'district': '中正區', 'tags': ['手沖']}}
 # result = search_db(query)
 # print(result[0])

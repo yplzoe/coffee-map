@@ -18,6 +18,9 @@
         border-radius: 5px;
         cursor: pointer;
       }
+      #map-link {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -30,6 +33,7 @@
         Scheduling
       </button>
     </div>
+
     <div class="search-container">
       <h2>Search by Shop Name</h2>
       <form action="/search" method="post">
@@ -42,6 +46,7 @@
         <button type="submit" name="search_by_name">Search</button>
       </form>
     </div>
+
     <div class="search-container">
       <h2>Search by Filters</h2>
       <form action="/search" method="post">
@@ -105,6 +110,10 @@
             />
             Nearby Me</label
           >
+          <p id="status"></p>
+          <p id="map-link"></p>
+          <input type="hidden" id="latitude" name="latitude" value="" />
+          <input type="hidden" id="longitude" name="longitude" value="" />
         </div>
         <div class="tags">
           <label
@@ -137,9 +146,51 @@
         <button type="submit" name="search_by_filters">Search</button>
       </form>
     </div>
+
     <script>
+      document
+        .querySelector("#nearbyCheckbox")
+        .addEventListener("change", function () {
+          if (this.checked) {
+            geoFindMe();
+          } else {
+            clearLocationInputs();
+          }
+        });
+
+      function geoFindMe() {
+        const status = document.querySelector("#status");
+        const latitudeInput = document.getElementById("latitude");
+        const longitudeInput = document.getElementById("longitude");
+
+        function success(position) {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+
+          latitudeInput.value = latitude;
+          longitudeInput.value = longitude;
+          status.textContent = `Latitude: ${latitude}, Longitude: ${longitude}`;
+        }
+        function error() {
+          status.textContent = " Unable to retrieve your location";
+          clearLocationInputs();
+        }
+        if (!navigator.geolocation) {
+          status.textContent = " Geolocation is not supported by your browers";
+        } else {
+          status.textContent = " Locating ...";
+          navigator.geolocation.getCurrentPosition(success, error);
+        }
+      }
+      function clearLocationInputs() {
+        document.getElementById("latitude").value = "";
+        document.getElementById("longitude").value = "";
+        document.getElementById("status").textContent = "";
+      }
+
       function clearNearby() {
         document.getElementById("nearbyCheckbox").checked = false;
+        clearLocationInputs();
       }
 
       function clearDistrictSelection() {
