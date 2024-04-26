@@ -1,8 +1,7 @@
 import random
-import pandas as pd
+import numpy as np
 from collections import defaultdict, OrderedDict
 from pprint import pprint
-import plotly.express as px
 import time
 import logging
 
@@ -35,8 +34,6 @@ def tabu_search(initial_solution, max_iterations, tabu_list_size, dis_dict):
     current_solution = initial_solution
     # cur_obj = object_function(current_solution, dis_dict)
     tabu_list = OrderedDict()
-    # best_obj_list = []
-    # iter_best_obj_list = []
 
     for _ in range(max_iterations):
         neighbors = get_neighbors(current_solution)
@@ -62,10 +59,6 @@ def tabu_search(initial_solution, max_iterations, tabu_list_size, dis_dict):
         if best_neighbor_obj < best_obj:
             best_solution = best_neighbor
             best_obj = best_neighbor_obj
-        # best_obj_list.append(best_obj)
-        # iter_best_obj_list.append(best_neighbor_obj)
-
-    # return best_solution, best_obj, best_obj_list, iter_best_obj_list
     return best_solution, best_obj
 
 
@@ -82,47 +75,34 @@ def rand_graph(num_nodes, max_dis, max_stay_time):
     return dis_dict, stay_dict
 
 
-def plot_solution(best_obj_list, iter_best_obj_list):
-    data = {
-        'iter': [i for i in range(len(iter_best_obj_list))],
-        'best_obj': best_obj_list,
-        'iter_best_obj': iter_best_obj_list
-    }
-    df = pd.DataFrame(data)
-    fig = px.line(df, x="iter", y=['best_obj', 'iter_best_obj'])
-    fig.show()
+# if __name__ == "__main__":
+#     """
+#     條件：
+#     1. 走過所有點
+#     2. 加入各點停留時間
+#     3. buffer time
+#     4. obj: min duration time
+#     5. start time, end time
+#     5. 考慮營業時間
+#     """
+#     start_time = time.time()
+#     num_node = 5
 
+#     initial_solution = [i for i in range(num_node)]  # TODO: from far to close
+#     dis_dict, stay_dict = rand_graph(
+#         num_nodes=num_node, max_dis=10, max_stay_time=30)
+#     pprint(dis_dict)
+#     pprint(stay_dict)
+#     max_iterations = 100
+#     tabu_list_size = 2 ** len(initial_solution)
 
-if __name__ == "__main__":
-    """
-    條件：
-    1. 走過所有點
-    2. 加入各點停留時間
-    3. buffer time
-    4. obj: min duration time
-    5. start time, end time
-    5. 考慮營業時間
-    """
-    # plot_solution()
-    start_time = time.time()
-    num_node = 40
-
-    initial_solution = [i for i in range(num_node)]
-    dis_dict, stay_dict = rand_graph(
-        num_nodes=num_node, max_dis=10, max_stay_time=30)
-    pprint(dis_dict)
-    pprint(stay_dict)
-    max_iterations = 100
-    tabu_list_size = 2 ** len(initial_solution)
-
-    best_solution, best_obj, best_obj_list, iter_best_obj_list = tabu_search(
-        initial_solution, max_iterations, tabu_list_size, dis_dict)
-    total_staying_time = sum(stay_dict.values())
-    best_obj -= total_staying_time
-    logging.info(f"Best solution: {best_solution}")
-    logging.info(
-        f"Best solution obj: {best_obj}")
-    end_time = time.time()
-    execution_time = end_time-start_time
-    logging.info(f"Excution time: {execution_time}")
-    plot_solution(best_obj_list, iter_best_obj_list)
+#     best_solution, best_obj = tabu_search(
+#         initial_solution, max_iterations, tabu_list_size, dis_dict)
+#     total_staying_time = sum(stay_dict.values())
+#     best_obj -= total_staying_time
+#     logging.info(f"Best solution: {best_solution}")
+#     logging.info(
+#         f"Best solution obj: {best_obj}")
+#     end_time = time.time()
+#     execution_time = end_time-start_time
+#     logging.info(f"Excution time: {execution_time}")
