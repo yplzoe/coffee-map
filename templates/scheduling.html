@@ -99,6 +99,23 @@
       button:hover {
         background-color: #5d4037; /* 深棕色懸停效果 */
       }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+      }
+      .dropdown-content div {
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        cursor: pointer;
+      }
+      .dropdown-content div:hover {
+        background-color: #f1f1f1;
+      }
     </style>
   </head>
   <body>
@@ -108,6 +125,38 @@
         <input type="text" id="shop-input" placeholder="Enter shop name ..." />
         <button onclick="searchShops()">Add Shop</button>
         <div id="shop-results"></div>
+        <p><strong>Optional</strong></p>
+        <div id="select-od">
+          <!-- <button onclick="selectMapPoint()">Select On Map</button> -->
+
+          <p>Start at (can be null, address or shop name):</p>
+          <div class="search-dropdown-container">
+            <input
+              type="text"
+              id="start-filter-input"
+              placeholder="Start typing..."
+            />
+            <div id="start-dropdown" class="dropdown-content"></div>
+          </div>
+          <p>End with (can be null, address or shop name):</p>
+          <div class="search-dropdown-container">
+            <input
+              type="text"
+              id="end-filter-input"
+              placeholder="Start typing..."
+            />
+            <div id="end-dropdown" class="dropdown-content"></div>
+          </div>
+        </div>
+        <div>
+          <p>Travel Mode (default by drive):</p>
+          <select name="travelMode" class="travel-select" id="travelModeSelect">
+            <option value="DRIVE">DRIVE</option>
+            <option value="WALK">WALK</option>
+            <option value="BUS">BUS</option>
+            <option value="TWO WHEELER">MOTORBIKE</option>
+          </select>
+        </div>
         <button type="button" onclick="submitShops()">GO!</button>
       </div>
 
@@ -118,11 +167,84 @@
     </div>
 
     <script>
-      var markers = {};
-      var markers_count = 0;
+      document
+        .getElementById("start-filter-input")
+        .addEventListener("input", function () {
+          let input = this.value.toLowerCase();
+          let dropdown = document.getElementById("start-dropdown");
+          dropdown.innerHTML = "";
+          const shop_names = document.querySelectorAll(".shop-name");
+          const optionsList = [];
+          shop_names.forEach((shop) => {
+            optionsList.push(shop.textContent);
+          });
+          if (input) {
+            dropdown.style.display = "block";
+
+            optionsList.forEach(function (option) {
+              if (option.toLowerCase().includes(input)) {
+                let div = document.createElement("div");
+                div.textContent = option;
+                div.onclick = function () {
+                  document.getElementById("start-filter-input").value = option;
+                  dropdown.style.display = "none";
+                };
+                dropdown.appendChild(div);
+              }
+            });
+          } else {
+            dropdown.style.display = "none";
+          }
+        });
+
+      document
+        .getElementById("end-filter-input")
+        .addEventListener("input", function () {
+          let input = this.value.toLowerCase();
+          let dropdown = document.getElementById("end-dropdown");
+          dropdown.innerHTML = ""; // Clear previous options
+          const shop_names = document.querySelectorAll(".shop-name");
+          const optionsList = [];
+          shop_names.forEach((shop) => {
+            optionsList.push(shop.textContent);
+          });
+          if (input) {
+            dropdown.style.display = "block";
+
+            optionsList.forEach(function (option) {
+              if (option.toLowerCase().includes(input)) {
+                let div = document.createElement("div");
+                div.textContent = option;
+                div.onclick = function () {
+                  document.getElementById("end-filter-input").value = option;
+                  dropdown.style.display = "none";
+                };
+                dropdown.appendChild(div);
+              }
+            });
+          } else {
+            dropdown.style.display = "none";
+          }
+        });
+
+      function selectMapPoint() {
+        map.on("click", function (e) {
+          var coord = e.latlng.toString().split(",");
+          var lat = coord[0].split("(");
+          var lng = coord[1].split(")");
+          console.log(
+            "You clicked the map at latitude: " +
+              lat[1] +
+              " and longitude:" +
+              lng[0]
+          );
+        });
+      }
+      let markers = {};
+      let markers_count = 0;
       // var drawRouteLayer = new L.LayerGroup();
       // drawRouteLayer.addTo(map);
-      var drawRouteLayer = null;
+      let drawRouteLayer = null;
 
       function searchShops() {
         const input = document.getElementById("shop-input").value;
@@ -151,6 +273,7 @@
             }
           })
           .catch((error) => console.error("Error:", error));
+        document.getElementById("shop-input").value = "";
       }
 
       function deleteShop(shopId) {
@@ -179,12 +302,20 @@
       function submitShops() {
         const shopItems = document.querySelectorAll(".shop-name");
         const shopNames = Array.from(shopItems).map((item) => item.textContent);
+        const startInput = document.getElementById("start-filter-input").value;
+        const endInput = document.getElementById("end-filter-input").value;
+        const travelMode = document.getElementById("travelModeSelect").value;
         fetch("/get-scheduling", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ shops: shopNames }),
+          body: JSON.stringify({
+            shops: shopNames,
+            start_place: startInput,
+            end_place: endInput,
+            travel_mode: travelMode,
+          }),
         })
           .then((response) => response.json())
           .then((data) => {
