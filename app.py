@@ -46,10 +46,30 @@ def search_shops():
 def get_scheduling():
     data = request.json
     shop_names = data['shops']
+
+    travel_mode = data["travel_mode"]
+    start_place = data['start_place']
+    end_place = data['end_place']
+    fixed_start = False
+    fixed_end = False
+    # TODO: if start==end
+    if start_place != '' and start_place in shop_names:
+        shop_names.insert(0, shop_names.pop(shop_names.index(start_place)))
+        fixed_start = True
+    elif start_place != '':
+        shop_names.insert(0, start_place)
+        fixed_start = True
+    if end_place != '' and end_place in shop_names:
+        shop_names.pop(shop_names.index(end_place))
+        shop_names.append(end_place)
+        fixed_end = True
+    elif end_place != '':
+        shop_names.append(end_place)
+        fixed_end = True
     logging.info(f"shop name: {shop_names}")
-    travel_mode = "DRIVE"
     dis_dict, shortest_index, full_routes = get_travel_time_dictionary.get_route_dict(
-        shop_names, travel_mode)
+        shop_names, travel_mode, fixed_start, fixed_end)
+    logging.info(f"dis_dict: {dis_dict}")
     best_solution, best_obj = tabu_search.tabu_search(
         shop_names, 100, 2**len(shop_names), dis_dict)
     logging.info(f"best_solution: {best_solution}, best_obj: {best_obj}")

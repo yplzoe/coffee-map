@@ -27,6 +27,8 @@ uri = os.environ.get("MONGO_URI")
 client = MongoClient(uri)
 db = client['coffee-map']
 
+# TODO: for bus, set time and show which bus
+
 
 def get_route(origin, destination, travel_mode):
     url = "https://routes.googleapis.com/directions/v2:computeRoutes"
@@ -61,7 +63,7 @@ def get_route(origin, destination, travel_mode):
         "polylineEncoding": "GEO_JSON_LINESTRING",  # specifying GeoJSON line string
         "transitPreferences": {
             "routingPreference": "LESS_WALKING",  # option 5
-            "allowedTravelModes": ["BUS", "RAIL"]  # option 6
+            "allowedTravelModes": ["BUS", "RAIL", "SUBWAY"]  # option 6
         },
     }
     response = requests.post(url, headers=headers, json=payload)
@@ -88,16 +90,23 @@ def add_to_mongo(origin, destination, data, travel_mode):
         logging.error(f'Error when insert into mongo: {e}')
 
 
-def get_route_dict(arr, travel_mode):
-    output = defaultdict(dict)
+def get_route_dict(arr, travel_mode, fixed_start=False, fixed_end=False):
+    output = defaultdict(
+        lambda: defaultdict(lambda: float('inf')))
     output_shortest_index = defaultdict(dict)
     full_routes = defaultdict(dict)
     collection = db['routes']
+    start_place = arr[0]
+    end_place = arr[-1]
     n = len(arr)
     for i in range(n):
         origin = arr[i]
+        if i == n-1 and fixed_end == True:
+            continue
         for j in range(n):
             destination = arr[j]
+            if j == 0 and i > j and fixed_start == True:
+                continue
             if origin == destination:
                 continue
             query = {'$and': [{'origin': origin}, {

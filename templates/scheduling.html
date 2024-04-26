@@ -153,8 +153,8 @@
           <select name="travelMode" class="travel-select" id="travelModeSelect">
             <option value="DRIVE">DRIVE</option>
             <option value="WALK">WALK</option>
-            <option value="BUS">BUS</option>
-            <option value="TWO WHEELER">MOTORBIKE</option>
+            <option value="TRANSIT">BUS</option>
+            <option value="TWO_WHEELER">MOTORBIKE</option>
           </select>
         </div>
         <button type="button" onclick="submitShops()">GO!</button>
@@ -227,6 +227,7 @@
           }
         });
 
+      //TODO:  select point
       function selectMapPoint() {
         map.on("click", function (e) {
           var coord = e.latlng.toString().split(",");
