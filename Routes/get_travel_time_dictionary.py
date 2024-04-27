@@ -120,6 +120,7 @@ def get_route_dict(arr, travel_mode, fixed_start=False, fixed_end=False):
                 route_result['routes'] = in_db['routes']
             else:
                 route_result = get_route(origin, destination, travel_mode)
+            # TODO
             full_routes[origin][destination] = route_result['routes']
             durations = [(int(route['duration'][:-1]), index)
                          for index, route in enumerate(route_result['routes'])]

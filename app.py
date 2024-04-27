@@ -1,10 +1,14 @@
 from app_fun import search_db, get_lat_lng, data_for_radars
 from collections import defaultdict
-from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for
+from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, session
 from flask_restful import Resource, Api
+from dotenv import load_dotenv
+from os.path import join, dirname, abspath
+import os
 import logging
 import time
 import datetime
+from datetime import timedelta
 from bson.objectid import ObjectId
 import Routes
 import Routes.tabu_search as tabu_search
@@ -15,8 +19,60 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+root_path = abspath(join(dirname(__file__), os.pardir))
+dotenv_path = join(root_path, '.env')
+load_dotenv(dotenv_path, override=True)
+
 app = Flask(__name__)
 api = Api(app)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
+
+
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(days=1)
+
+
+def merge_dicts(dict1, dict2):
+    logging.info(f"dict: {dict1}")
+    logging.info(f"dict2: {dict2}")
+    if isinstance(dict1, list) and isinstance(dict2, list):
+        return dict1+dict2
+    if isinstance(dict1, dict) and isinstance(dict2, dict):
+        return dict(list(dict1.items())+list(dict2.items()))
+    return False
+
+
+@app.route('/cart')
+def view_cart():
+    pass
+
+
+@app.route('/add-cart', methods=['POST'])
+def add_cart():
+    try:
+        shop_name = request.form.get('shop_name')
+        shop_ob_id = request.form.get('shop_ob_id')
+        if shop_name and request.method == 'POST':
+            dict_items = {shop_ob_id: {'shop_name': shop_name}}
+            logging.info(f"add item: {dict_items}")
+            logging.info(f"session before: {session}")
+            if 'cart_list' in session:
+                logging.info(session['cart_list'])
+                if shop_name in session['cart_list']:
+                    logging.info(f"{shop_name} has already in cart.")
+                else:
+                    session['cart_list'] = merge_dicts(
+                        session['cart_list'], dict_items)
+                    logging.info(f"in session: {session['cart_list']}")
+            else:
+                session['cart_list'] = dict_items
+                return redirect(request.referrer)
+    except Exception as e:
+        logging.error(f"ERROR in add-cart: {e}")
+    finally:
+        return redirect(request.referrer)
 
 
 @app.route('/search-shops')
