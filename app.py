@@ -46,9 +46,10 @@ def merge_dicts(dict1, dict2):
     return False
 
 
-@app.route('/cart')
-def view_cart():
-    pass
+@app.route('/clear-cart-list', methods=['POST'])
+def clear_cart_list():
+    session.pop('cart_list', None)  # Clear 'cart-list' from session
+    return jsonify(success=True)
 
 
 @app.route('/add-cart', methods=['POST'])

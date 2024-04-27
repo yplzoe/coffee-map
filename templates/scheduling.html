@@ -121,6 +121,10 @@
   <body>
     <div class="container">
       <div class="left-panel">
+        <a href="/" style="text-decoration: none">
+          <button>Home</button>
+        </a>
+
         <h2>Select Shops</h2>
         <input type="text" id="shop-input" placeholder="Enter shop name ..." />
         <button onclick="searchShops()">Add Shop</button>
@@ -163,6 +167,7 @@
       <div class="right-panel">
         <div id="map"></div>
         <div id="status-message"></div>
+        <button id="doneButton">DONE</button>
       </div>
     </div>
 
@@ -376,6 +381,31 @@
             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }
       ).addTo(map);
+
+      document.getElementById('doneButton').addEventListener('click', function() {
+          // Clear all elements in the left panel
+          document.getElementById('shop-results').innerHTML = ''; // Assuming 'shop-results' holds the elements
+
+          // Clear all markers on the map
+          for (let marker in markers) {
+              if (markers.hasOwnProperty(marker)) {
+                  map.removeLayer(markers[marker]);
+              }
+          }
+          markers = {}; // Reset markers object
+
+          // Optionally remove any layers like routes, etc.
+          if (drawRouteLayer) {
+              map.removeLayer(drawRouteLayer);
+              drawRouteLayer = null;
+          }
+
+          // Clear session cart list - Needs to be handled by server-side code
+          fetch('/clear-cart-list', { method: 'POST' }) // Assuming you have a route defined to handle this
+          .then(response => response.json())
+          .then(data => console.log('Cart list cleared'))
+          .catch(error => console.error('Error clearing cart list:', error));
+      });
     </script>
   </body>
 </html>

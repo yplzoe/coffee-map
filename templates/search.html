@@ -17,7 +17,10 @@
   </head>
   <body>
     <div class="search-bar-container">
-      <form action="/search" method="post">
+      <a href="/" style="text-decoration: none">
+        <button>Home</button>
+      </a>
+      <!-- <form action="/search" method="post">
         <input
           type="text"
           name="search"
@@ -25,7 +28,7 @@
           value="{{ search_query }}"
         />
         <button type="submit">Search</button>
-      </form>
+      </form> -->
       <a class="cart-counter" href="/scheduling"
         >GO Scheduling ({{ session['cart_list']|length }})</a
       >
@@ -81,7 +84,7 @@
             else{
               const cartCounter =document.querySelector('.cart-counter');
               const currentCount = parseInt(cartCounter.textContent.match(/\d+/)[0]); // Extracts the numeric part from the string
-              cartCounter.textContent = `Cart (${currentCount + 1})`;
+              cartCounter.textContent = `GO Scheduling (${currentCount + 1})`;
               alert('Shop added to cart');
             };
 
