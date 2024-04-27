@@ -65,22 +65,17 @@ def add_cart():
                 # logging.info(session['cart_list'])
                 if shop_ob_id in session['cart_list']:
                     logging.info(f"{shop_name} has already in cart.")
-                    return jsonify({'success': True, 'already_in': True})
+                    return jsonify({'success': True, 'already_in': True}), 200
                 else:
                     session['cart_list'] = merge_dicts(
                         session['cart_list'], dict_items)
                     # logging.info(f"in session: {session['cart_list']}")
             else:
                 session['cart_list'] = dict_items
-                # logging.info(request.referrer)
-                # return redirect(request.referrer)
-        return jsonify({'success': True, 'already_in': False})
+        return jsonify({'success': True, 'already_in': False}), 200
     except Exception as e:
         logging.error(f"ERROR in add-cart: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
-    # finally:
-    #     logging.info(request.referrer)
-    #     return redirect(request.referrer)
 
 
 @app.route('/search-shops')
