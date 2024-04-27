@@ -26,7 +26,7 @@
         />
         <button type="submit">Search</button>
       </form>
-      <a>Cart ({{ session['cart_list']|length }})</a>
+      <a class="cart-counter">Cart ({{ session['cart_list']|length }})</a>
     </div>
     <div class="results-container">
       {% for result in search_result %} {% if result.place_detail %}
@@ -60,6 +60,35 @@
     </div>
   </body>
   <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      const addToCartForms=document.querySelectorAll("form[action='/add-cart']");
+      addToCartForms.forEach(form => {
+        form.addEventListener('submit', function(event){
+          event.preventDefault();//阻止表單正常提交
+          const formData=new FormData(this);
+          fetch('/add-cart', {
+            method: 'POST',
+            body:formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            // console.log(data);
+            if (data.already_in){
+              alert('Shop has already in the list.')
+            }
+            else{
+              const cartCounter =document.querySelector('.cart-counter');
+              const currentCount = parseInt(cartCounter.textContent.match(/\d+/)[0]); // Extracts the numeric part from the string
+              cartCounter.textContent = `Cart (${currentCount + 1})`;
+              alert('Shop added to cart');
+            };
+
+          })
+          .catch(error => console.error('Error: ', error));
+        })
+      });
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
       const results =  {{ search_result|tojson }}; // server-side render
       console.log(results);
