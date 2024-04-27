@@ -142,8 +142,17 @@ def get_scheduling():
 
 
 @app.route('/scheduling', methods=['GET', 'POST'])
-def route():
-    return render_template('scheduling.html')
+def scheduling():
+    output = {}
+    if request.method == 'GET':
+        if 'cart_list' in session:
+            for shop_id, shop_info in session['cart_list'].items():
+                location = get_lat_lng(shop_info['shop_name'])
+                if location:
+                    session['cart_list'][shop_id]['shop_location'] = location
+            logging.info(session['cart_list'])
+            output = session['cart_list']
+    return render_template('scheduling.html', cart_list=output)
 
 
 @app.route('/search', methods=['GET', 'POST'])

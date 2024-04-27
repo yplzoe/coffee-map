@@ -101,7 +101,7 @@
       }
       .dropdown-content {
         display: none;
-        position: absolute;
+        /* position: absolute; */
         background-color: #f9f9f9;
         min-width: 160px;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
@@ -210,7 +210,7 @@
           });
           if (input) {
             dropdown.style.display = "block";
-
+            console.log(optionsList);
             optionsList.forEach(function (option) {
               if (option.toLowerCase().includes(input)) {
                 let div = document.createElement("div");
@@ -246,6 +246,23 @@
       // var drawRouteLayer = new L.LayerGroup();
       // drawRouteLayer.addTo(map);
       let drawRouteLayer = null;
+      document.addEventListener("DOMContentLoaded", function() {
+        const shopData={{ cart_list|tojson|safe}};
+        console.log(shopData);
+        const shopResults=document.getElementById("shop-results");
+        Object.keys(shopData).forEach(key => {
+            const shop = shopData[key];
+            const div = document.createElement("div");
+            div.className = "shop-item";
+            div.innerHTML = `<span class="shop-name">${shop.shop_name}</span>
+                            <button class="delete-btn" onclick="deleteShop(${markers_count})">X</button>`;
+            shopResults.appendChild(div);
+            const marker = L.marker(shop.shop_location).addTo(map);
+            marker.bindPopup(`<b>${shop.shop_name}</b>`).openPopup();
+            markers[markers_count] = marker;
+            markers_count++;
+        });
+      });
 
       function searchShops() {
         const input = document.getElementById("shop-input").value;
