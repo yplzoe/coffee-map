@@ -206,11 +206,28 @@
 
     document.addEventListener("DOMContentLoaded", function(){
       const searchResult={{ search_result | tojson | safe}};
+      const timeInfo={{ time_info | tojson | safe}};
       searchResult.forEach(result => {
         if (result.place_detail && result.geometry){
           const loc=result.geometry.coordinates;
           const marker=L.marker([loc[1], loc[0]]).addTo(map);
           marker.bindPopup(`<b>${result._id}</b><br>${result.place_detail.name}`);
+          if (result.popularity_data.populartimes){
+            const popular_data=result.popularity_data.populartimes[timeInfo.day_of_week-1].data[timeInfo.cur_hour];
+            console.log(popular_data);
+            if (popular_data==0){
+              L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#808080'}).addTo(map);
+            }else if (popular_data<=33){
+              L.circleMarker([loc[1], loc[0]], {radius: 10}).addTo(map);
+            } else if(popular_data<=66){
+              L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#ff5520'}).addTo(map);
+            } else if (popular_data<=100){
+              L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#ff0000'}).addTo(map);
+            }else {
+
+            };
+          }
+
         }
       })
     });

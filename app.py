@@ -9,7 +9,7 @@ import os
 import logging
 import time
 import datetime
-from datetime import timedelta
+from datetime import timedelta, datetime
 from bson.objectid import ObjectId
 import Routes
 import Routes.tabu_search as tabu_search
@@ -182,7 +182,18 @@ def search():
                 tag_data = data_for_radars(results[i], selected_tags)
                 results[i]['for_radar'] = tag_data
         # logging.info(f"return data: {results}")
-        return render_template('search.html', search_result=results)
+        cur_date = datetime.now()
+        day_of_week = cur_date.isoweekday() % 7
+        cur_hour = cur_date.hour
+        time_info = {
+            'cur_date': cur_date,
+            'cur_hour': cur_hour,
+            'day_of_week': day_of_week
+        }
+        # logging.info(f"cur date: {cur_date}")
+        # logging.info(f"day of week: {day_of_week}")
+        # logging.info(f"cur hour: {cur_hour}")
+        return render_template('search.html', search_result=results, time_info=time_info)
     return redirect(url_for('index'))
 
 
