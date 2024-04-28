@@ -193,16 +193,27 @@
   </body>
   <script>
     const center = [25.038732612636068, 121.53235946764482];
-      const map = L.map("map").setView(center, 13);
+    const map = L.map("map").setView(center, 13);
 
-      const tiles = L.tileLayer(
-        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          maxZoom: 19,
-          attribution:
-            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    const tiles = L.tileLayer(
+      "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        maxZoom: 19,
+        attribution:
+          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }
+    ).addTo(map);
+
+    document.addEventListener("DOMContentLoaded", function(){
+      const searchResult={{ search_result | tojson | safe}};
+      searchResult.forEach(result => {
+        if (result.place_detail && result.geometry){
+          const loc=result.geometry.coordinates;
+          const marker=L.marker([loc[1], loc[0]]).addTo(map);
+          marker.bindPopup(`<b>${result._id}</b><br>${result.place_detail.name}`);
         }
-      ).addTo(map);
+      })
+    });
 
     document.addEventListener("DOMContentLoaded", function(){
       const addToCartForms=document.querySelectorAll("form[action='/add-cart']");
