@@ -27,27 +27,6 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
 }
 
-.container {
-  display: flex;
-  flex-direction: column; /* 水平排列 */
-  align-items: stretch; /* 垂直拉伸，保持内容高度一致 */
-  width: 50%; /* 确保容器占满整个父元素宽度 */
-}
-
-.search-container,
-.show-map {
-  flex: 1; /* 使两个容器平分空间 */
-  padding: 20px; /* 根据需要调整内边距 */
-}
-
-#map {
-  width: 100%; /* 确保地图元素填充整个容器宽度 */
-  height: 400px; /* 或其他希望的高度 */
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 保持原有阴影 */
-  box-sizing: border-box; /* 包括padding在内的宽高计算 */
-}
-
 h2 {
   margin-bottom: 10px;
 }

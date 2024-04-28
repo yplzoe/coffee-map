@@ -8,17 +8,6 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
     <style>
       .schedule-button {
         position: absolute;
@@ -32,14 +21,14 @@
       #map-link {
         display: none;
       }
-      /* body {
+      body {
         justify-content: center;
-      } */
+      }
     </style>
   </head>
   <body>
     <div class="header">
-      <strong>Coffee Map</strong>
+      Coffee Map
       <button
         class="schedule-button"
         onclick="window.location.href='/scheduling'"
@@ -48,143 +37,120 @@
       </button>
     </div>
 
-    <div class="container">
-      <div class="search-container">
-        <h2>Search by Shop Name</h2>
-        <form action="/search" method="post">
-          <input
-            type="test"
-            name="shop_name"
-            placeholder="Enter shop name..."
-            class="search-bar"
-          />
-          <button type="submit" name="search_by_name">Search</button>
-        </form>
-      </div>
+    <div class="search-container">
+      <h2>Search by Shop Name</h2>
+      <form action="/search" method="post">
+        <input
+          type="test"
+          name="shop_name"
+          placeholder="Enter shop name..."
+          class="search-bar"
+        />
+        <button type="submit" name="search_by_name">Search</button>
+      </form>
+    </div>
 
-      <div class="search-container">
-        <h2>Search by Filters</h2>
-        <form action="/search" method="post">
-          <div class="filter-container">
-            <select
-              name="district"
-              class="district-select"
-              id="districtSelect"
-              onchange="clearNearby()"
-            >
-              <option value="">Select District</option>
-              <option value="all">所有區域</option>
-              <option value="中正區">中正區</option>
-              <option value="萬華區">萬華區</option>
-              <option value="大同區">大同區</option>
-              <option value="中山區">中山區</option>
-              <option value="松山區">松山區</option>
-              <option value="大安區">大安區</option>
-              <option value="信義區">信義區</option>
-              <option value="內湖區">內湖區</option>
-              <option value="南港區">南港區</option>
-              <option value="士林區">士林區</option>
-              <option value="北投區">北投區</option>
-              <option value="文山區">文山區</option>
+    <div class="search-container">
+      <h2>Search by Filters</h2>
+      <form action="/search" method="post">
+        <div class="filter-container">
+          <select
+            name="district"
+            class="district-select"
+            id="districtSelect"
+            onchange="clearNearby()"
+          >
+            <option value="">Select District</option>
+            <option value="all">所有區域</option>
+            <option value="中正區">中正區</option>
+            <option value="萬華區">萬華區</option>
+            <option value="大同區">大同區</option>
+            <option value="中山區">中山區</option>
+            <option value="松山區">松山區</option>
+            <option value="大安區">大安區</option>
+            <option value="信義區">信義區</option>
+            <option value="內湖區">內湖區</option>
+            <option value="南港區">南港區</option>
+            <option value="士林區">士林區</option>
+            <option value="北投區">北投區</option>
+            <option value="文山區">文山區</option>
 
-              <option value="板橋區">板橋區</option>
-              <option value="土城區">土城區</option>
-              <option value="樹林區">樹林區</option>
-              <option value="三峽區">三峽區</option>
-              <option value="鶯歌區">鶯歌區</option>
-              <option value="中和區">中和區</option>
-              <option value="永和區">永和區</option>
-              <option value="三重區">三重區</option>
-              <option value="蘆洲區">蘆洲區</option>
-              <option value="新莊區">新莊區</option>
-              <option value="五股區">五股區</option>
-              <option value="泰山區">泰山區</option>
-              <option value="林口區">林口區</option>
-              <option value="淡水區">淡水區</option>
-              <option value="八里區">八里區</option>
-              <option value="三芝區">三芝區</option>
-              <option value="石門區">石門區</option>
-              <option value="金山區">金山區</option>
-              <option value="萬里區">萬里區</option>
-              <option value="汐止區">汐止區</option>
-              <option value="瑞芳區">瑞芳區</option>
-              <option value="平溪區">平溪區</option>
-              <option value="雙溪區">雙溪區</option>
-              <option value="貢寮區">貢寮區</option>
-              <option value="新店區">新店區</option>
-              <option value="深坑區">深坑區</option>
-              <option value="石碇區">石碇區</option>
-              <option value="坪林區">坪林區</option>
-              <option value="烏來區">烏來區</option>
-            </select>
-            <label
-              ><input
-                type="checkbox"
-                id="nearbyCheckbox"
-                onchange="clearDistrictSelection()"
-              />
-              Nearby Me</label
-            >
-            <p id="status"></p>
-            <p id="map-link"></p>
-            <input type="hidden" id="latitude" name="latitude" value="" />
-            <input type="hidden" id="longitude" name="longitude" value="" />
-          </div>
-          <div class="tags">
-            <label
-              ><input type="checkbox" name="tags" value="work" />
-              適合工作</label
-            >
-            <label
-              ><input type="checkbox" name="tags" value="brew" /> 手沖</label
-            >
-            <label
-              ><input type="checkbox" name="tags" value="coffee" /> 咖啡</label
-            >
-            <label
-              ><input type="checkbox" name="tags" value="beans" /> 咖啡豆</label
-            >
-            <label
-              ><input type="checkbox" name="tags" value="socket" /> 插座</label
-            >
-            <label
-              ><input type="checkbox" name="tags" value="desert" /> 甜點</label
-            >
-            <label
-              ><input type="checkbox" name="tags" value="pet" /> 寵物</label
-            >
-            <label
-              ><input type="checkbox" name="tags" value="comfort" /> 氛圍</label
-            >
-            <label
-              ><input type="checkbox" name="tags" value="quiet" /> 安靜</label
-            >
-            <label
-              ><input type="checkbox" name="tags" value="time" /> 不限時</label
-            >
-          </div>
-          <button type="submit" name="search_by_filters">Search</button>
-        </form>
-      </div>
-
-      <div class="show-map">
-        <div id="map"></div>
-      </div>
+            <option value="板橋區">板橋區</option>
+            <option value="土城區">土城區</option>
+            <option value="樹林區">樹林區</option>
+            <option value="三峽區">三峽區</option>
+            <option value="鶯歌區">鶯歌區</option>
+            <option value="中和區">中和區</option>
+            <option value="永和區">永和區</option>
+            <option value="三重區">三重區</option>
+            <option value="蘆洲區">蘆洲區</option>
+            <option value="新莊區">新莊區</option>
+            <option value="五股區">五股區</option>
+            <option value="泰山區">泰山區</option>
+            <option value="林口區">林口區</option>
+            <option value="淡水區">淡水區</option>
+            <option value="八里區">八里區</option>
+            <option value="三芝區">三芝區</option>
+            <option value="石門區">石門區</option>
+            <option value="金山區">金山區</option>
+            <option value="萬里區">萬里區</option>
+            <option value="汐止區">汐止區</option>
+            <option value="瑞芳區">瑞芳區</option>
+            <option value="平溪區">平溪區</option>
+            <option value="雙溪區">雙溪區</option>
+            <option value="貢寮區">貢寮區</option>
+            <option value="新店區">新店區</option>
+            <option value="深坑區">深坑區</option>
+            <option value="石碇區">石碇區</option>
+            <option value="坪林區">坪林區</option>
+            <option value="烏來區">烏來區</option>
+          </select>
+          <label
+            ><input
+              type="checkbox"
+              id="nearbyCheckbox"
+              onchange="clearDistrictSelection()"
+            />
+            Nearby Me</label
+          >
+          <p id="status"></p>
+          <p id="map-link"></p>
+          <input type="hidden" id="latitude" name="latitude" value="" />
+          <input type="hidden" id="longitude" name="longitude" value="" />
+        </div>
+        <div class="tags">
+          <label
+            ><input type="checkbox" name="tags" value="work" /> 適合工作</label
+          >
+          <label><input type="checkbox" name="tags" value="brew" /> 手沖</label>
+          <label
+            ><input type="checkbox" name="tags" value="coffee" /> 咖啡</label
+          >
+          <label
+            ><input type="checkbox" name="tags" value="beans" /> 咖啡豆</label
+          >
+          <label
+            ><input type="checkbox" name="tags" value="socket" /> 插座</label
+          >
+          <label
+            ><input type="checkbox" name="tags" value="desert" /> 甜點</label
+          >
+          <label><input type="checkbox" name="tags" value="pet" /> 寵物</label>
+          <label
+            ><input type="checkbox" name="tags" value="comfort" /> 氛圍</label
+          >
+          <label
+            ><input type="checkbox" name="tags" value="quiet" /> 安靜</label
+          >
+          <label
+            ><input type="checkbox" name="tags" value="time" /> 不限時</label
+          >
+        </div>
+        <button type="submit" name="search_by_filters">Search</button>
+      </form>
     </div>
 
     <script>
-      const center = [25.038732612636068, 121.53235946764482];
-      const map = L.map("map").setView(center, 13);
-
-      const tiles = L.tileLayer(
-        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          maxZoom: 19,
-          attribution:
-            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        }
-      ).addTo(map);
-
       document
         .querySelector("#nearbyCheckbox")
         .addEventListener("change", function () {
