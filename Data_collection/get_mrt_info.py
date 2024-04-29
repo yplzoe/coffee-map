@@ -45,10 +45,16 @@ for doc in collection.find():
     station_id = doc['StationID']
     line_name = re.split('(\d+)', station_id)[0]
     print(line_name)
+    lat = doc['ExitPosition']['PositionLat']
+    lon = doc['ExitPosition']['PositionLon']
     update_operation = UpdateOne(
         {'_id': doc['_id']},
         {'$set': {
-            'Line': line_name
+            'Line': line_name,
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [lon, lat]
+            }
         }},
         upsert=True
     )
