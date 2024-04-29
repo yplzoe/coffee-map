@@ -94,6 +94,20 @@ def calculate_lat_lng_dis(lat, lng):
 
 def data_for_radars(data, selected_tags):
     tags = data["tags"]
+    tag_translations = {
+        "brew": '手沖',
+        "coffee": '咖啡',
+        "beans": '咖啡豆',
+        "internet": '網路',
+        "socket": '插座',
+        "seat": '座位',
+        "desert": '甜點',
+        "pet": '寵物',
+        "work": '適合工作',
+        "comfort": '氛圍',
+        "quiet": '安靜',
+        "time": '不限時'
+    }
     df = pd.DataFrame(list(tags.items()), columns=['tag', 'count'])
     df.sort_values(
         by=['count'], inplace=True, ignore_index=True, ascending=False)
@@ -104,7 +118,9 @@ def data_for_radars(data, selected_tags):
         selected_tags.extend(additional_tags['tag'].tolist())
 
     selected_df = df.loc[df['tag'].isin(selected_tags)]
+    selected_df['tag'] = selected_df['tag'].map(tag_translations)
     selected_df = selected_df.to_dict(orient='list')
+
     return selected_df
 
 
