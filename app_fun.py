@@ -20,6 +20,45 @@ uri = os.environ.get("MONGO_URI")
 client = MongoClient(uri)
 db = client['coffee-map']
 raw_collection = db['raw_shop_info']
+mrt_collection = db['mrt_location']
+
+
+def search_mrt(station_name):
+    query = {"StationName.Zh_tw": station_name}
+    results = mrt_collection.find(query)
+    exits_dict = {}
+    for ele in results:
+        id = ele['ExitID']
+        location = ele['geometry']['coordinates']
+        exits_dict[id] = location
+    # print(exits_dict)
+    return exits_dict
+
+
+def find_mrt_shop(station_name, walking_time):
+    exits_dict = search_mrt(station_name)
+    output = []
+    wt_lm = 0.66*walking_time*0.1
+    for exit_number, corrdinates in exits_dict.items():
+        query = {'geometry': {'$geoWithin': {"$centerSphere": [
+            corrdinates, wt_lm/6378.1]}}}
+        shops = list(raw_collection.find(query))
+
+        for shop in shops:
+            found = False
+            for existing_shop in output:
+                if existing_shop['_id'] == shop['_id']:
+                    if exit_number not in existing_shop['exit']:
+                        existing_shop['exit'].append(exit_number)
+                    found = True
+                    break
+
+            if not found:
+                shop_info = shop
+                shop_info['mrt'] = station_name
+                shop_info['exit'] = [exit_number]
+                output.append(shop_info)
+    return output
 
 
 def search_db(query):
@@ -30,6 +69,12 @@ def search_db(query):
         # {'filters': { 'district': selected_district, 'tags': selected_tags}}
         district = query['filters']['district']
         search_tags = query['filters']['tags']
+        mrt_station = query['filters']['mrt']
+
+        if mrt_station != '':
+            output = find_mrt_shop(
+                mrt_station, query['filters']['walking_time'])
+            return output
 
         if district == 'all' or district == "":
             district = '北市'
@@ -40,8 +85,9 @@ def search_db(query):
         if query['filters']['user_location'] != ['', '']:
             user_location = query['filters']['user_location']  # str
             user_location = [float(user_location[0]), float(user_location[1])]
+            user_km = 0.66*query['filters']['walking_time']*0.1
             user_query = {'geometry': {'$geoWithin': {"$centerSphere": [
-                user_location, 0.66/6378.1]}}}
+                user_location, user_km/6378.1]}}}
             query_conditions.append(user_query)
         else:
             query_conditions.append({
