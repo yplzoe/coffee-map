@@ -60,7 +60,7 @@
             id="districtSelect"
             onchange="clearForDistrictSelection()"
           >
-            <option value="" disabled="true">Select District</option>
+            <option disabled selected value>-- Select District --</option>
             <option value="all">所有區域</option>
             <option value="中正區">中正區</option>
             <option value="萬華區">萬華區</option>
@@ -111,7 +111,7 @@
             id="mrtSelect"
             onchange="clearForMRTSelection()"
           >
-            <option value="" disabled="true">Select MRT Station</option>
+            <option disabled selected value>-- Select MRT Station --</option>
             <optgroup label="BR 文湖線">
               <option value="動物園">BR01 動物園</option>
               <option value="木柵">BR02 木柵</option>
@@ -137,6 +137,16 @@
           <p id="map-link"></p>
           <input type="hidden" id="latitude" name="latitude" value="" />
           <input type="hidden" id="longitude" name="longitude" value="" />
+        </div>
+        <div id="walking_time_div" hidden="hidden">
+          <label for="walking_time"
+            >走路<input
+              type="number"
+              id="walking_time"
+              name="walking_time"
+              placeholder="10"
+            />分鐘內</label
+          >
         </div>
         <div class="tags">
           <label
@@ -206,6 +216,7 @@
           navigator.geolocation.getCurrentPosition(success, error);
         }
       }
+
       function clearLocationInputs() {
         document.getElementById("latitude").value = "";
         document.getElementById("longitude").value = "";
@@ -216,6 +227,11 @@
         if (document.getElementById("nearbyCheckbox").checked) {
           document.getElementById("districtSelect").value = "";
           document.getElementById("mrtSelect").value = "";
+          var walkingTimeLabel = document.getElementById("walking_time_div");
+          var hidden = walkingTimeLabel.getAttribute("hidden");
+          if (hidden) {
+            walkingTimeLabel.removeAttribute("hidden");
+          }
         }
       }
 
@@ -223,11 +239,21 @@
         document.getElementById("nearbyCheckbox").checked = false;
         clearLocationInputs();
         document.getElementById("mrtSelect").value = "";
+        var walkingTimeLabel = document.getElementById("walking_time_div");
+        var hidden = walkingTimeLabel.getAttribute("hidden");
+        if (!hidden) {
+          walkingTimeLabel.setAttribute("hidden", "hidden");
+        }
       }
       function clearForMRTSelection() {
         document.getElementById("districtSelect").value = "";
         document.getElementById("nearbyCheckbox").checked = false;
         clearLocationInputs();
+        var walkingTimeLabel = document.getElementById("walking_time_div");
+        var hidden = walkingTimeLabel.getAttribute("hidden");
+        if (hidden) {
+          walkingTimeLabel.removeAttribute("hidden");
+        }
       }
     </script>
   </body>

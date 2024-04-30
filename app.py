@@ -165,12 +165,22 @@ def search():
         if 'search_by_name' in request.form:
             search_query['name'] = {'text': request.form['shop_name']}
         elif 'search_by_filters' in request.form:
-            selected_district = request.form['district']
+            selected_district = ''
+            selected_mrt = ''
+            if request.form['walking_time'] == '':
+                walking_time = 10
+            else:
+                walking_time = int(request.form['walking_time'])
+
+            if 'district' in request.form:
+                selected_district = request.form['district']
+            if 'mrt' in request.form:
+                selected_mrt = request.form['mrt']
             selected_lat_lng = [
                 request.form['longitude'], request.form['latitude']]
             selected_tags = request.form.getlist('tags')
             search_query['filters'] = {
-                'district': selected_district, 'tags': selected_tags, 'user_location': selected_lat_lng}
+                'district': selected_district, 'tags': selected_tags, 'user_location': selected_lat_lng, 'mrt': selected_mrt, 'walking_time': walking_time}
         logging.info(f"search query: {search_query}")
 
         results = search_db(search_query)  # list of shop info
