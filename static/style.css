@@ -80,7 +80,8 @@ button:hover {
 }
 
 .district-select {
-  flex: 1; /* 讓下拉選單填充剩餘空間 */
+  flex-grow: 1;
+  /* flex: 1; 讓下拉選單填充剩餘空間 */
   padding: 12px;
   margin-right: 10px; /* 給 Nearby Me 留出空間 */
   border: 2px solid #a1887f;
@@ -88,11 +89,25 @@ button:hover {
   font-size: 16px;
   background-color: #ffffff; /* 白色背景 */
 }
+.mrt-container {
+  flex-grow: 1;
+  background-color: #efebe9; /* 淡棕色背景 */
+  border: 1px solid #a1887f; /* 淺棕色邊框 */
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px;
+  width: auto; /* 自適應寬度 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+}
+.nearby-container {
+  flex-grow: 1;
+}
 
 .filter-container {
   display: flex;
   align-items: center; /* 垂直居中對齊 */
   margin-bottom: 10px; /* 適當的間隔 */
+  justify-content: space-between;
 }
 
 input[type="checkbox"] {

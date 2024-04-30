@@ -1,0 +1,39 @@
+name: coffee-map
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - beautifulsoup4=4.12.3
+  - boto3=1.34.86
+  - botocore=1.34.86
+  - ca-certificates=2024.2.2
+  - flask=3.0.3
+  - flask-restful=0.3.10
+  - geocoder=1.38.1
+  - googlemaps=4.10.0
+  - matplotlib=3.8.4
+  - matplotlib-base=3.8.4
+  - numpy=1.26.4
+  - openssl=3.2.1
+  - pandas=2.2.2
+  - pip=24.0
+  - plotly=5.21.0
+  - python=3.11.8
+  - python-dotenv=1.0.1
+  - pytz=2024.1
+  - requests=2.31.0
+  - selenium=4.19.0
+  - selenium-manager=4.19.0
+  - typing_extensions=4.11.0
+  - werkzeug=3.0.2
+  - pip:
+      - flask-cors==4.0.0
+      - ipdb==0.13.13
+      - ipython==8.23.0
+      - jedi==0.19.1
+      - matplotlib-inline==0.1.6
+      - pymongo==3.11.0
+      - scipy==1.13.0
+      - stack-data==0.6.3
+      - urllib3==1.26.18
+      - webdriver-manager==4.0.1
