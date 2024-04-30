@@ -20,6 +20,47 @@ uri = os.environ.get("MONGO_URI")
 client = MongoClient(uri)
 db = client['coffee-map']
 raw_collection = db['raw_shop_info']
+mrt_collection = db['mrt_location']
+
+
+def search_mrt(station_name):
+    query = {"StationName.Zh_tw": station_name}
+    results = mrt_collection.find(query)
+    exits_dict = {}
+    for ele in results:
+        id = ele['ExitID']
+        location = ele['geometry']['coordinates']
+        exits_dict[id] = location
+    # print(exits_dict)
+    return exits_dict
+
+
+def find_mrt_shop(station_name):
+    exits_dict = search_mrt(station_name)
+    output = []
+    for exit_number, corrdinates in exits_dict.items():
+        query = {'geometry': {'$geoWithin': {"$centerSphere": [
+            corrdinates, 0.66/6378.1]}}}
+        shops = list(raw_collection.find(query))
+
+        for shop in shops:
+            found = False
+            for existing_shop in output:
+                if existing_shop['_id'] == shop['_id']:
+                    if exit_number not in existing_shop['exit']:
+                        existing_shop['exit'].append(exit_number)
+                    found = True
+                    break
+
+            if not found:
+                shop_info = shop
+                shop_info['mrt'] = station_name
+                shop_info['exit'] = [exit_number]
+                output.append(shop_info)
+    return output
+
+
+exits_dict = find_mrt_shop("土城")
 
 
 def search_db(query):
