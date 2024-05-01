@@ -28,6 +28,7 @@ app = Flask(__name__)
 # CORS(app)
 api = Api(app)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
+app.config['SESSION_TYPE'] = 'filesystem'
 
 
 @app.before_request
