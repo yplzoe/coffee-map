@@ -400,6 +400,7 @@
               drawRouteLayer = null;
           }
 
+          document.getElementById('status-message').innerHTML = '';
           // Clear session cart list - Needs to be handled by server-side code
           fetch('/clear-cart-list', { method: 'POST' }) // Assuming you have a route defined to handle this
           .then(response => response.json())

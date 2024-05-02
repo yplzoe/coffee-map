@@ -1,6 +1,7 @@
 from app_fun import search_db, get_lat_lng, data_for_radars
 from collections import defaultdict
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, session
+from flask_session import Session
 from flask_restful import Resource, Api
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -29,6 +30,7 @@ app = Flask(__name__)
 api = Api(app)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
 
 @app.before_request
