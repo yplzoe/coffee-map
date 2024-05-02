@@ -35,14 +35,15 @@ def search_mrt(station_name):
     return exits_dict
 
 
-def find_mrt_shop(station_name, walking_time):
+def find_mrt_shop(station_name, walking_time, tag_query):
     exits_dict = search_mrt(station_name)
     output = []
     wt_lm = 0.66*walking_time*0.1
     for exit_number, corrdinates in exits_dict.items():
-        query = {'geometry': {'$geoWithin': {"$centerSphere": [
+        geo_query = {'geometry': {'$geoWithin': {"$centerSphere": [
             corrdinates, wt_lm/6378.1]}}}
-        shops = list(raw_collection.find(query))
+        combined_query = {'$and': tag_query+[geo_query]}
+        shops = list(raw_collection.find(combined_query))
 
         for shop in shops:
             found = False
@@ -71,16 +72,16 @@ def search_db(query):
         search_tags = query['filters']['tags']
         mrt_station = query['filters']['mrt']
 
-        if mrt_station != '':
-            output = find_mrt_shop(
-                mrt_station, query['filters']['walking_time'])
-            return output
-
         if district == 'all' or district == "":
             district = '北市'
 
         query_conditions = [{'tags.' + tag: {'$exists': True}}
                             for tag in search_tags]
+
+        if mrt_station != '':
+            output = find_mrt_shop(
+                mrt_station, query['filters']['walking_time'], query_conditions)
+            return output
 
         if query['filters']['user_location'] != ['', '']:
             user_location = query['filters']['user_location']  # str
