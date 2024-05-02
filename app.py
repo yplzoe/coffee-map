@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from os.path import join, dirname, abspath
 import os
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import time
 import datetime
 from datetime import timedelta, datetime
@@ -16,10 +17,17 @@ import Routes
 import Routes.tabu_search as tabu_search
 import Routes.get_travel_time_dictionary as get_travel_time_dictionary
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
-)
-logger = logging.getLogger(__name__)
+# Configure logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Create a TimedRotatingFileHandler
+# Rotate daily, keep 7 days of logs
+handler = TimedRotatingFileHandler(
+    'app.log', when='midnight', interval=1, backupCount=7)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 root_path = abspath(join(dirname(__file__), os.pardir))
 dotenv_path = join(root_path, '.env')
