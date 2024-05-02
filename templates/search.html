@@ -154,7 +154,7 @@
           <div class="result-item">
             <form action="{{ url_for('add_cart') }}" method="POST">
               <p class="result-title"><strong>{{ result._id }}</strong></p>
-              {% if result.place_detail.opening_hours %}
+              {% if result.doc.user_ratings_total %}
               <p>
                 Total Ratings: {{ result.doc.user_ratings_total }} Rating: {{
                 result.doc.rating }}
@@ -167,10 +167,6 @@
                 id="table-container-{{ loop.index }}"
                 class="table-container"
               ></div>
-              <!-- <p>
-                Opening Hours: {{ result.place_detail.opening_hours.weekday_text
-                }}
-              </p> -->
               <a
                 href="{% if result.place_detail.website %}{{ result.place_detail.website }}{% else %}https://www.google.com/maps/place?q={{ result.place_detail.name }}{% endif %}"
                 >More Info</a
