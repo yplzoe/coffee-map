@@ -164,7 +164,7 @@ def data_for_radars(data, selected_tags):
             selected_tags)].head(5 - len(selected_tags))
         selected_tags.extend(additional_tags['tag'].tolist())
 
-    selected_df = df.loc[df['tag'].isin(selected_tags)]
+    selected_df = df[df['tag'].isin(selected_tags)].copy()
     selected_df['tag'] = selected_df['tag'].map(tag_translations)
     selected_df = selected_df.to_dict(orient='list')
 

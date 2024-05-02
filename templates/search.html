@@ -234,21 +234,24 @@
 
           const table =document.createElement('table');
           const tbody=document.createElement('tbody');
-          result.place_detail.opening_hours.weekday_text.forEach(openingHour => {
-            const [day, hours] = openingHour.split(': ');
-            const row = document.createElement('tr');
-            const dayCell = document.createElement('td');
-            dayCell.textContent = day;
-            row.appendChild(dayCell);
-            const hoursCell = document.createElement('td');
-            hoursCell.textContent = hours;
-            row.appendChild(hoursCell);
-            tbody.appendChild(row);
-          });
-          table.appendChild(tbody);
-          // Add the table to your existing result item
-          const radarDiv = document.getElementById(`table-container-${index + 1}`);
-          radarDiv.appendChild(table);
+          if (result.place_detail.opening_hours){
+            result.place_detail.opening_hours.weekday_text.forEach(openingHour => {
+              const [day, hours] = openingHour.split(': ');
+              const row = document.createElement('tr');
+              const dayCell = document.createElement('td');
+              dayCell.textContent = day;
+              row.appendChild(dayCell);
+              const hoursCell = document.createElement('td');
+              hoursCell.textContent = hours;
+              row.appendChild(hoursCell);
+              tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+            // Add the table to your existing result item
+            const radarDiv = document.getElementById(`table-container-${index + 1}`);
+            radarDiv.appendChild(table);
+          }
+
         }
       })
     });
