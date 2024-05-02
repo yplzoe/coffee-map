@@ -163,10 +163,14 @@
                 id="radar-{{loop.index }}"
                 style="width: 50%; height: 300px"
               ></div>
-              <p>
+              <div
+                id="table-container-{{ loop.index }}"
+                class="table-container"
+              ></div>
+              <!-- <p>
                 Opening Hours: {{ result.place_detail.opening_hours.weekday_text
                 }}
-              </p>
+              </p> -->
               <a
                 href="{% if result.place_detail.website %}{{ result.place_detail.website }}{% else %}https://www.google.com/maps/place?q={{ result.place_detail.name }}{% endif %}"
                 >More Info</a
@@ -207,7 +211,7 @@
     document.addEventListener("DOMContentLoaded", function(){
       const searchResult={{ search_result | tojson | safe}};
       const timeInfo={{ time_info | tojson | safe}};
-      searchResult.forEach(result => {
+      searchResult.forEach((result, index) => {
         if (result.place_detail && result.geometry){
           const loc=result.geometry.coordinates;
           const marker=L.marker([loc[1], loc[0]]).addTo(map);
@@ -228,6 +232,23 @@
             };
           }
 
+          const table =document.createElement('table');
+          const tbody=document.createElement('tbody');
+          result.place_detail.opening_hours.weekday_text.forEach(openingHour => {
+            const [day, hours] = openingHour.split(': ');
+            const row = document.createElement('tr');
+            const dayCell = document.createElement('td');
+            dayCell.textContent = day;
+            row.appendChild(dayCell);
+            const hoursCell = document.createElement('td');
+            hoursCell.textContent = hours;
+            row.appendChild(hoursCell);
+            tbody.appendChild(row);
+          });
+          table.appendChild(tbody);
+          // Add the table to your existing result item
+          const radarDiv = document.getElementById(`table-container-${index + 1}`);
+          radarDiv.appendChild(table);
         }
       })
     });
@@ -263,7 +284,7 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       const results =  {{ search_result|tojson }}; // server-side render
-      console.log(results);
+      // console.log(results);
       results.forEach((result, index) => {
         if (result.place_detail && result.for_radar) {
           const data = [
