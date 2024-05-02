@@ -206,7 +206,9 @@ def search():
                 tag_data = data_for_radars(results[i], selected_tags)
                 results[i]['for_radar'] = tag_data
         # logging.info(f"return data: {results}")
-        cur_date = datetime.now()
+        import pytz
+        taiwan_timezone = pytz.timezone('Asia/Taipei')
+        cur_date = datetime.now(taiwan_timezone)
         day_of_week = cur_date.isoweekday() % 7
         cur_hour = cur_date.hour
         time_info = {
