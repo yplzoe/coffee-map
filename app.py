@@ -196,8 +196,11 @@ def search():
 
         results = search_db(search_query)  # list of shop info
         len_results = len(results)
-        for ss in results:
-            ss['doc']['_id'] = ss['doc']['_id'].__str__()
+        print(f"results: {results}")
+        print(f"len results: {len_results}")
+        if results[0]['_id'] != 'There is no store that matches.':
+            for ss in results:
+                ss['doc']['_id'] = ss['doc']['_id'].__str__()
         for i in range(len_results):
             if 'tags' in results[i]:
                 tag_data = data_for_radars(results[i], selected_tags)
