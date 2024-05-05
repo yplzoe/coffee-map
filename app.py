@@ -196,7 +196,7 @@ def search():
 
         results = search_db(search_query)  # list of shop info
         len_results = len(results)
-        print(f"results: {results}")
+        # print(f"results: {results}")
         print(f"len results: {len_results}")
         if results[0]['_id'] != 'There is no store that matches.':
             for ss in results:
