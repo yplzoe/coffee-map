@@ -198,6 +198,8 @@ def search():
         len_results = len(results)
         # print(f"results: {results}")
         print(f"len results: {len_results}")
+        if results[0]['_id'] == 'There is no store that matches.':
+            pass
         if results[0]['_id'] != 'There is no store that matches.':
             for ss in results:
                 ss['doc']['_id'] = ss['doc']['_id'].__str__()

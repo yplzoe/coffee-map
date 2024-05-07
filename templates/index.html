@@ -25,9 +25,24 @@
         justify-content: center;
       }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .caveat-header {
+        font-family: "Caveat", cursive;
+        font-optical-sizing: auto;
+        font-weight: 700;
+        font-style: normal;
+        font-size: 90px;
+      }
+    </style>
   </head>
   <body>
-    <div class="header">
+    <div class="caveat-header">
       <strong>Coffee Map</strong>
       <button
         class="schedule-button"
@@ -41,10 +56,11 @@
       <h2>Search by Shop Name</h2>
       <form action="/search" method="post">
         <input
-          type="test"
+          type="text"
           name="shop_name"
           placeholder="Enter shop name..."
           class="search-bar"
+          required
         />
         <button type="submit" name="search_by_name">Search</button>
       </form>
