@@ -8,6 +8,12 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    <!-- <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    /> -->
     <style>
       .schedule-button {
         position: absolute;
@@ -31,15 +37,6 @@
       href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&display=swap"
       rel="stylesheet"
     />
-    <style>
-      .caveat-header {
-        font-family: "Caveat", cursive;
-        font-optical-sizing: auto;
-        font-weight: 700;
-        font-style: normal;
-        font-size: 90px;
-      }
-    </style>
   </head>
   <body>
     <div class="caveat-header">
@@ -331,7 +328,37 @@
         <button type="submit" name="search_by_filters">Search</button>
       </form>
     </div>
+    <div>
+      {% with errors =get_flashed_messages(category_filter=["error"]) %} {% if
+      errors %}
+      <div
+        class="alert alert-danger alert-dismissible fade show"
+        role="alert"
+        id="flash-message"
+      >
+        <ul>
+          {%- for msg in errors %}
+          <li>{{ msg }}</li>
+          {% endfor -%}
+        </ul>
 
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        >
+          X
+        </button>
+      </div>
+      {% endif %} {% endwith %}
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+      crossorigin="anonymous"
+    ></script>
     <script>
       document
         .querySelector("#nearbyCheckbox")

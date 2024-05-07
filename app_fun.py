@@ -112,11 +112,11 @@ def search_db(query):
         # for result in results:
         #     logging.info(f"search result: {result['_id']}")
         #     output.append(result)
-    if len(output) == 0:
-        output.append(
-            {'_id': 'There is no store that matches.',
-             'place_detail': {'name': 'There is no store that matches.'}}
-        )
+    # if len(output) == 0:
+    #     output.append(
+    #         {'_id': 'There is no store that matches.',
+    #          'place_detail': {'name': 'There is no store that matches.'}}
+    #     )
     # logging.info(f"output: {output}")
     return output
 
@@ -195,5 +195,5 @@ def plot_radars(data, selected_tags):
 # print(len(result_name))
 
 
-shop_name = '光進來的地方'
+# shop_name = '光進來的地方'
 # get_lat_lng(shop_name)

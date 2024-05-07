@@ -1,6 +1,6 @@
 from app_fun import search_db, get_lat_lng, data_for_radars
 from collections import defaultdict
-from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, session, flash
 from flask_session import Session
 from flask_restful import Resource, Api
 from flask_cors import CORS
@@ -12,6 +12,7 @@ from logging.handlers import TimedRotatingFileHandler
 import time
 import datetime
 from datetime import timedelta, datetime
+import pytz
 from bson.objectid import ObjectId
 import Routes
 import Routes.tabu_search as tabu_search
@@ -97,7 +98,7 @@ def search_shops():
     search_query = defaultdict(dict)
     search_query['name'] = {'text': shop_name}
     shops = search_db(search_query)
-    if shops[0]['_id'] == 'There is no store that matches.':
+    if len(shops) == 0:
         return jsonify({'status': 'fail'}), 200
 
     for ss in shops:
@@ -197,18 +198,18 @@ def search():
         results = search_db(search_query)  # list of shop info
         len_results = len(results)
         # print(f"results: {results}")
-        print(f"len results: {len_results}")
-        if results[0]['_id'] == 'There is no store that matches.':
-            pass
-        if results[0]['_id'] != 'There is no store that matches.':
-            for ss in results:
-                ss['doc']['_id'] = ss['doc']['_id'].__str__()
+        # print(f"len results: {len_results}")
+        if len(results) == 0:
+            flash('Store does not exist in the database.', 'error')
+            return redirect(url_for('index'))
+        for ss in results:
+            ss['doc']['_id'] = ss['doc']['_id'].__str__()
         for i in range(len_results):
             if 'tags' in results[i]:
                 tag_data = data_for_radars(results[i], selected_tags)
                 results[i]['for_radar'] = tag_data
         # logging.info(f"return data: {results}")
-        import pytz
+
         taiwan_timezone = pytz.timezone('Asia/Taipei')
         cur_date = datetime.now(taiwan_timezone)
         day_of_week = cur_date.isoweekday() % 7
