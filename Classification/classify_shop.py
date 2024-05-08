@@ -1,8 +1,34 @@
+import logging
+from logging.handlers import TimedRotatingFileHandler
 from dotenv import load_dotenv, find_dotenv
 from os.path import join, dirname, abspath
 import os
 from pymongo import MongoClient
-from module import MongoDB
+from datetime import datetime
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+mongo_logger = logging.getLogger("MongoDB")
+mongo_logger.setLevel(logging.INFO)
+
+
+log_dir = "logs"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, "log_classify_shop.log")
+mongo_handler = TimedRotatingFileHandler(
+    log_file, when="midnight", interval=1, backupCount=7)
+mongo_handler.setLevel(logging.INFO)
+
+
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+mongo_handler.setFormatter(formatter)
+mongo_logger.addHandler(mongo_handler)
+
 
 BREW_TAGS = ["手沖", "單品", "賽風", "虹吸", "冰滴"]
 COFFEE_TAGS = ["咖啡好喝", "拿鐵好喝", "咖啡不錯", "特調"]
@@ -10,7 +36,8 @@ BEANS_TAGS = ["咖啡豆", "熟豆", "豆子"]
 INTERNET_TAGS = ["網路", "有wifi", "免費wifi"]
 SOCKET_TAGS = ["插座"]
 SEAT_TAGS = ["座位", "位置多"]
-DESERT_TAGS = ["甜點", "提拉米蘇", "塔", "布丁", "蛋糕"]
+DESERT_TAGS = ["甜點", "提拉米蘇", "塔", "布丁", "蛋糕", "戚風", "生乳捲",
+               "冰淇淋", "馬卡龍", "餅乾", "泡芙", "糖果", "果凍", "巧克力", "米果", "派", "瑪德蓮"]
 PET_TAGS = ["寵物", "貓", "狗", "鸚鵡"]
 WORK_TAGS = ["工作", "讀書", "辦公", "看書"]
 COMFORT_TAGS = ["舒適", "放鬆"]
@@ -75,21 +102,45 @@ def categorize_data_more_reviews(reviews, tag_result):
                         break
 
 
-# mongo = MongoDB(None, 27017, uri)
-for document in raw_collection.find():
-    id = document.get('_id')  # name of coffee
-    reviews = document['doc'].get('place_details', {}).get('reviews', [])
-    tag_result = categorize_data_raw(reviews)
+def get_classified_tag():
+    try:
+        uri = os.environ.get("MONGO_URI")
+        client = MongoClient(uri)
+        db = client['coffee-map']
+        raw_collection = db['raw_shop_info']
+        more_collection = db['more_reviews']
+        count = 0
 
-    find_latest = more_collection.find_one(
-        {"name": id}, sort=[("create_at", -1)])
-    find_latest_review = find_latest.get('reviews')
-    if (find_latest_review != []) and (find_latest_review != ["error"]):
-        categorize_data_more_reviews(
-            find_latest_review, tag_result)
+        for document in raw_collection.find():
+            if count > 1:
+                break
+            count += 1
+            id = document.get('_id')  # name of coffee
+            reviews = document['doc'].get(
+                'place_details', {}).get('reviews', [])
+            tag_result = categorize_data_raw(reviews)
 
-    document.pop('tags', None)
-    document['tags'] = tag_result
-    raw_collection.replace_one({'_id': document['_id']}, document)
+            find_latest = more_collection.find_one(
+                {"name": id}, sort=[("create_at", -1)])
+            find_latest_review = find_latest.get('reviews')
+            if (find_latest_review != []) and (find_latest_review != ["error"]):
+                categorize_data_more_reviews(
+                    find_latest_review, tag_result)
 
-client.close()
+            current_time = datetime.utcnow()
+            result = raw_collection.update_one(
+                {'_id': id},
+                {'$set': {'tags': tag_result, 'update_at': current_time},
+                 '$setOnInsert': {'create_at': current_time}},
+                upsert=True
+            )
+            mongo_logger.info(f"Tags updated for coffee shop: {id}")
+
+        client.close()
+        logging.info("Tag categorization completed.")
+    except Exception as e:
+        logging.error(f"Error occurred during tag categorization: {str(e)}")
+
+
+# if __name__ == "__main__":
+#     get_classified_tag()
