@@ -114,8 +114,8 @@ def get_all_reviews(name):
             break_condition = True
             print(f"Error: {e}")
 
-        if len(results) > 100:
-            break_condition = True
+        # if len(results) > 100:
+        #     break_condition = True
 
     output = []
 
@@ -145,28 +145,32 @@ mongo_collection = mongo_db['raw_shop_info']
 
 re_collection = mongo_db['more_reviews']
 
-for document in mongo_collection.find():
-    name = document.get('_id')
+# for document in mongo_collection.find():
+# name = document.get('_id')
+name = '興波咖啡'
 
-    re_skip = re_collection.find_one({"name": name})
-    if re_skip:
-        continue
+# re_skip = re_collection.find_one({"name": name})
+# if re_skip:
+#     continue
 
-    current_utc_time = datetime.now(timezone.utc)
-    # name = 'Tibet st. Cafe'
-    review_output = []
-    try:
-        review_output = get_all_reviews(name)
-    except Exception as e:
-        print("error: {e}")
-        review_output.append('error')
+current_utc_time = datetime.now(timezone.utc)
+# name = 'Tibet st. Cafe'
+review_output = []
+try:
+    # address = document['place_detail'].get('formatted_address')
+    address = '106台北市大安區金華街177號'
+    search_string = address+' '+name
+    review_output = get_all_reviews(search_string)
+except Exception as e:
+    print("error: {e}")
+    review_output.append('error')
 
-    insert_data = [{
-        "name": name,
-        "reviews": review_output,
-        "create_at": current_utc_time
-    }]
-    mongo.insert_list("coffee-map", "more_reviews", insert_data)
+insert_data = [{
+    "name": name,
+    "reviews": review_output,
+    "create_at": current_utc_time
+}]
+mongo.insert_list("coffee-map", "more_reviews", insert_data)
 
 client.close()
 mongo.close_connection()
