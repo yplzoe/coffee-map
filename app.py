@@ -34,6 +34,8 @@ root_path = abspath(join(dirname(__file__), os.pardir))
 dotenv_path = join(root_path, '.env')
 load_dotenv(dotenv_path, override=True)
 
+DEFAULT_CENTER = ['25.03834398543371', '121.53246232312559']
+
 app = Flask(__name__)
 # CORS(app)
 api = Api(app)
@@ -190,6 +192,8 @@ def search():
                 selected_mrt = request.form['mrt']
             selected_lat_lng = [
                 request.form['longitude'], request.form['latitude']]
+            if request.form['checkboxValue'] == 'true' and (request.form['longitude'] == '' or request.form['latitude'] == ''):
+                selected_lat_lng = [DEFAULT_CENTER[1], DEFAULT_CENTER[0]]
             selected_tags = request.form.getlist('tags')
             search_query['filters'] = {
                 'district': selected_district, 'tags': selected_tags, 'user_location': selected_lat_lng, 'mrt': selected_mrt, 'walking_time': walking_time}

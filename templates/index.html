@@ -59,7 +59,7 @@
 
     <div class="search-container">
       <h2>Search by Filters</h2>
-      <form action="/search" method="post">
+      <form onsubmit="updateCheckboxValue()" action="/search" method="post">
         <div class="filter-container">
           <select
             name="district"
@@ -278,6 +278,12 @@
           >
           <p id="status"></p>
           <p id="map-link"></p>
+          <input
+            type="hidden"
+            id="checkboxValue"
+            name="checkboxValue"
+            value="false"
+          />
           <input type="hidden" id="latitude" name="latitude" value="" />
           <input type="hidden" id="longitude" name="longitude" value="" />
         </div>
@@ -354,6 +360,11 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      function updateCheckboxValue() {
+        var checkbox = document.getElementById("nearbyCheckbox");
+        var hiddenInput = document.getElementById("checkboxValue");
+        hiddenInput.value = checkbox.checked ? "true" : "false"; // Update the value before submitting
+      }
       document
         .querySelector("#nearbyCheckbox")
         .addEventListener("change", function () {
