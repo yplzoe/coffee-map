@@ -173,8 +173,6 @@
     </div>
 
     <script>
-
-
       document
         .getElementById("start-filter-input")
         .addEventListener("input", function () {
@@ -328,56 +326,63 @@
       function submitShops() {
         const goButton=document.getElementById('goButton');
         if (goButton.disabled==false){
-        goButton.disabled=true;
-        console.log(goButton.disabled);
-        const shopItems = document.querySelectorAll(".shop-name");
-        const shopNames = Array.from(shopItems).map((item) => item.textContent);
-        const startInput = document.getElementById("start-filter-input").value;
-        const endInput = document.getElementById("end-filter-input").value;
-        const travelMode = document.getElementById("travelModeSelect").value;
-        fetch("/get-scheduling", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            shops: shopNames,
-            start_place: startInput,
-            end_place: endInput,
-            travel_mode: travelMode,
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log("disable: ", goButton.disabled);
-            console.log("Success: ", data);
-            drawRouteLayer = L.geoJSON(data.best_route, {
-              filter(feature, layer) {
-                if (feature.properties) {
-                  return feature.properties.underConstruction !== undefined
-                    ? !feature.properties.underConstruction
-                    : true;
-                }
-                return false;
-              },
-            }).addTo(map);
-            // drawRouteLayer.addLayer(data.best_route);
+          goButton.disabled=true;
+          console.log(goButton.disabled);
+          const statusMessage=document.getElementById("status-message");
+          const div = document.createElement("div");
+          div.className = "status-shop-item";
+          div.innerHTML = "Loading ... ";
+          statusMessage.appendChild(div);
 
-            const results = document.getElementById("status-message");
-            data.best_solution.forEach((shop, index) => {
-              const div = document.createElement("div");
-              div.className = "status-shop-item";
-              div.innerHTML = `<span class="status-shop-name">${
-                index + 1
-              }. ${shop}</span>`;
-              results.appendChild(div);
-            });
-            goButton.disabled = false;
+          const shopItems = document.querySelectorAll(".shop-name");
+          const shopNames = Array.from(shopItems).map((item) => item.textContent);
+          const startInput = document.getElementById("start-filter-input").value;
+          const endInput = document.getElementById("end-filter-input").value;
+          const travelMode = document.getElementById("travelModeSelect").value;
+          fetch("/get-scheduling", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              shops: shopNames,
+              start_place: startInput,
+              end_place: endInput,
+              travel_mode: travelMode,
+            }),
           })
-          .catch((error) => {
-            console.error("Error: ", error);
-            goButton.disabled = false;
-          });
+            .then((response) => response.json())
+            .then((data) => {
+              console.log("check disable: ", goButton.disabled);
+              console.log("Success: ", data);
+              drawRouteLayer = L.geoJSON(data.best_route, {
+                filter(feature, layer) {
+                  if (feature.properties) {
+                    return feature.properties.underConstruction !== undefined
+                      ? !feature.properties.underConstruction
+                      : true;
+                  }
+                  return false;
+                },
+              }).addTo(map);
+              // drawRouteLayer.addLayer(data.best_route);
+
+              const results = document.getElementById("status-message");
+              results.innerHTML = "";
+              data.best_solution.forEach((shop, index) => {
+                const div = document.createElement("div");
+                div.className = "status-shop-item";
+                div.innerHTML = `<span class="status-shop-name">${
+                  index + 1
+                }. ${shop}</span>`;
+                results.appendChild(div);
+              });
+              goButton.disabled = false;
+            })
+            .catch((error) => {
+              console.error("Error: ", error);
+              goButton.disabled = false;
+            });
 
         }
       }
