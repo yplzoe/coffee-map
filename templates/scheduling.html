@@ -271,7 +271,11 @@
       });
 
       function searchShops() {
-        const input = document.getElementById("shop-input").value;
+        const input = document.getElementById("shop-input").value.trim();
+        if (input.length === 0) {
+          alert("Please enter a shop name.");
+          return; // Exit the function if input is empty
+        }
         fetch(`/search-shops?name=${encodeURIComponent(input)}`)
           .then((response) => response.json())
           .then((data) => {

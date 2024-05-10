@@ -45,12 +45,15 @@
 
     <div class="search-container">
       <h2>Search by Shop Name</h2>
-      <form action="/search" method="post">
+      <form action="/search" method="post" onsubmit="trimAndValidateInput()">
         <input
           type="text"
           name="shop_name"
           placeholder="Enter shop name..."
           class="search-bar"
+          id="shop-name-input"
+          pattern="[a-zA-Z0-9\u4E00-\u9FA5 .]+"
+          title="This field is required and without special characters."
           required
         />
         <button type="submit" name="search_by_name">Search</button>
@@ -360,6 +363,18 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      function trimAndValidateInput() {
+        var inputElement = document.getElementById("shop-name-input");
+        inputElement.value = inputElement.value.trim(); // Trim the input
+        // Validate that the trimmed input has at least two non-whitespace characters
+        if (!inputElement.value || inputElement.value.length < 2) {
+          event.preventDefault();
+          inputElement.value = "";
+          alert("Please enter at least two non-whitespace characters."); // Alert if validation fails
+          return false; // Prevent form submission
+        }
+        return true;
+      }
       function updateCheckboxValue() {
         var checkbox = document.getElementById("nearbyCheckbox");
         var hiddenInput = document.getElementById("checkboxValue");
