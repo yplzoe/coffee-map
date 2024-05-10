@@ -162,7 +162,7 @@
             <option value="TWO_WHEELER">MOTORBIKE</option>
           </select>
         </div>
-        <button type="button" onclick="submitShops()">GO!</button>
+        <button type="button" id="goButton" onclick="submitShops()">GO!</button>
       </div>
 
       <div class="right-panel">
@@ -173,6 +173,8 @@
     </div>
 
     <script>
+
+
       document
         .getElementById("start-filter-input")
         .addEventListener("input", function () {
@@ -324,6 +326,10 @@
       }
 
       function submitShops() {
+        const goButton=document.getElementById('goButton');
+        if (goButton.disabled==false){
+        goButton.disabled=true;
+        console.log(goButton.disabled);
         const shopItems = document.querySelectorAll(".shop-name");
         const shopNames = Array.from(shopItems).map((item) => item.textContent);
         const startInput = document.getElementById("start-filter-input").value;
@@ -343,6 +349,7 @@
         })
           .then((response) => response.json())
           .then((data) => {
+            console.log("disable: ", goButton.disabled);
             console.log("Success: ", data);
             drawRouteLayer = L.geoJSON(data.best_route, {
               filter(feature, layer) {
@@ -365,10 +372,14 @@
               }. ${shop}</span>`;
               results.appendChild(div);
             });
+            goButton.disabled = false;
           })
           .catch((error) => {
             console.error("Error: ", error);
+            goButton.disabled = false;
           });
+
+        }
       }
 
       const center = [25.038732612636068, 121.53235946764482];
