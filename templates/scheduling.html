@@ -127,7 +127,12 @@
         </a>
 
         <h2>Select Shops</h2>
-        <input type="text" id="shop-input" placeholder="Enter shop name ..." />
+        <input
+          type="text"
+          id="shop-input"
+          placeholder="Enter shop name ..."
+          pattern="[a-zA-Z0-9\u4E00-\u9FA5 .]+"
+        />
         <button onclick="searchShops()">Add Shop</button>
         <div id="shop-results"></div>
         <p><strong>Optional</strong></p>
@@ -271,9 +276,12 @@
       });
 
       function searchShops() {
-        const input = document.getElementById("shop-input").value.trim();
-        if (input.length === 0) {
-          alert("Please enter a shop name.");
+        let input = document.getElementById("shop-input").value.trim();
+        console.log("before: "+input);
+        input=input.replace(/[^a-zA-Z0-9\u4E00-\u9FA5 .&]/g, '');
+        console.log("input: "+input);
+        if (input.length <= 1) {
+          alert("Please enter a shop name and at least two character.");
           return; // Exit the function if input is empty
         }
         fetch(`/search-shops?name=${encodeURIComponent(input)}`)
