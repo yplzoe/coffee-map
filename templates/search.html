@@ -142,7 +142,9 @@
         <button type="submit">Search</button>
       </form> -->
         <a class="cart-counter" href="/scheduling"
-          ><button>Scheduling ({{ session['cart_list']|length }})</button></a
+          ><button class="cart-counter-btn">
+            GO Schedule ({{ session['cart_list']|length }})
+          </button></a
         >
       </div>
     </nav>
@@ -269,10 +271,10 @@
               alert('Shop has already in the list.')
             }
             else{
-              const cartCounter =document.querySelector('.cart-counter');
+              const cartCounter =document.querySelector('.cart-counter-btn');
               const currentCount = parseInt(cartCounter.textContent.match(/\d+/)[0]); // Extracts the numeric part from the string
-              cartCounter.textContent = `GO Scheduling (${currentCount + 1})`;
-              alert('Shop added to be scheduled.');
+              cartCounter.textContent = `GO Schedule (${currentCount + 1})`;
+              // alert('Shop added to be scheduled.');
             };
 
           })
