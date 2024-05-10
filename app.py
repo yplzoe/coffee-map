@@ -179,6 +179,9 @@ def search():
         if 'search_by_name' in request.form:
             search_query['name'] = {'text': request.form['shop_name']}
         elif 'search_by_filters' in request.form:
+            if request.form['checkboxValue'] == 'false' and 'district' not in request.form and 'mrt' not in request.form:
+                flash('Please select at least one location condition.', 'error')
+                return redirect(url_for('index'))
             selected_district = ''
             selected_mrt = ''
             if request.form['walking_time'] == '':
