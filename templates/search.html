@@ -51,7 +51,7 @@
       .left-panel,
       #map {
         flex: 1;
-        padding: 20px;
+        /* padding: 20px; */
         box-sizing: border-box;
       }
 
@@ -67,6 +67,8 @@
       #map {
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+        width: auto;
+        height: 80%;
       }
       #status-message {
         margin-top: 20px;
@@ -123,6 +125,38 @@
       }
       .dropdown-content div:hover {
         background-color: #f1f1f1;
+      }
+
+      :after,
+      :before {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+      }
+
+      .leaflet-legend {
+        background: #fff;
+        padding: 2px 5px;
+        border-radius: 5px;
+        min-width: 200px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .action {
+        cursor: pointer;
+      }
+
+      .arrow {
+        display: inline-block;
+        pointer-events: none;
+        line-height: 100%;
+      }
+
+      .is-active .arrow {
+        rotate: 180deg;
       }
     </style>
   </head>
@@ -206,6 +240,56 @@
       }
     ).addTo(map);
 
+    L.Control.Button = L.Control.extend({
+      options: {
+        position: "bottomright",
+      },
+      onAdd: function (map) {
+        const container = L.DomUtil.create(
+          "div",
+          "leaflet-bar leaflet-control leaflet-legend"
+        );
+
+        container.title = "Legends";
+
+        const button = L.DomUtil.create(
+          "div",
+          "leaflet-control-button leaflet-legend-action",
+          container
+        );
+        button.insertAdjacentHTML(
+          "afterbegin",
+          "<div class='action'>Popular times legends <div class='arrow'>↑</div></div>"
+        );
+
+        const legendWrapper = L.DomUtil.create(
+          "div",
+          "legend-wrapper hidden",
+          container
+        );
+
+        const labels = ["Close", "Usually not busy", "Usually not too busy", "Usually busy"];
+        const colors = ["#808080", "green", "orange", "#ff0000"];
+        labels.forEach((label, index) => {
+          const colorDot = `<span style='height: 10px; width: 10px; background-color: ${colors[index]}; border-radius: 50%; display: inline-block;'></span>`;
+          const row = `<div>${colorDot} ${label}</div>`;
+          legendWrapper.insertAdjacentHTML("beforeend", row);
+        });
+
+        L.DomEvent.disableClickPropagation(button);
+        L.DomEvent.on(button, "click", function (e) {
+          const parent = e.target;
+          parent.parentNode.classList.toggle("is-active");
+          parent.parentNode.nextElementSibling.classList.toggle("hidden");
+        });
+
+        return container;
+      },
+      onRemove: function (map) {},
+    });
+    const control = new L.Control.Button();
+    control.addTo(map);
+
     document.addEventListener("DOMContentLoaded", function(){
       const searchResult={{ search_result | tojson | safe}};
       const timeInfo={{ time_info | tojson | safe}};
@@ -220,9 +304,9 @@
             if (popular_data==0){
               L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#808080'}).addTo(map);
             }else if (popular_data<=33){
-              L.circleMarker([loc[1], loc[0]], {radius: 10}).addTo(map);
+              L.circleMarker([loc[1], loc[0]], {radius: 10, color: 'green'}).addTo(map);
             } else if(popular_data<=66){
-              L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#ff5520'}).addTo(map);
+              L.circleMarker([loc[1], loc[0]], {radius: 10, color: 'orange'}).addTo(map);
             } else if (popular_data<=100){
               L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#ff0000'}).addTo(map);
             }else {
