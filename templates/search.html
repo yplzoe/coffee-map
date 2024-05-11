@@ -19,6 +19,11 @@
       src="https://cdn.plot.ly/plotly-2.30.0.min.js"
       charset="utf-8"
     ></script>
+    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
+      rel="stylesheet"
+    />
 
     <link
       rel="stylesheet"
@@ -195,14 +200,19 @@
                 Total Ratings: {{ result.doc.user_ratings_total }} Rating: {{
                 result.doc.rating }}
               </p>
-              <div
-                id="radar-{{loop.index }}"
-                style="width: 50%; height: 300px"
-              ></div>
-              <div
-                id="table-container-{{ loop.index }}"
-                class="table-container"
-              ></div>
+              <div style="display: flex">
+                <div
+                  id="radar-{{loop.index }}"
+                  style="width: 50%; height: 300px"
+                ></div>
+                <div
+                  id="table-container-{{ loop.index }}"
+                  class="table-container"
+                  style="width: 50%"
+                >
+              <p><br>營業時間</br></p></div> 
+              </div>
+
               <a
                 href="{% if result.place_detail.website %}{{ result.place_detail.website }}{% else %}https://www.google.com/maps/place?q={{ result.place_detail.name }}{% endif %}"
                 >More Info</a
@@ -229,7 +239,11 @@
   </body>
   <script>
     const center = [25.038732612636068, 121.53235946764482];
-    const map = L.map("map").setView(center, 13);
+    const map=L.map(document.getElementById('map'), {
+      center: center,
+      zoom: 13,
+      fullscreenControl: true,
+    });
 
     const tiles = L.tileLayer(
       "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -293,11 +307,15 @@
     document.addEventListener("DOMContentLoaded", function(){
       const searchResult={{ search_result | tojson | safe}};
       const timeInfo={{ time_info | tojson | safe}};
+
+      const markerLayer=L.layerGroup().addTo(map);
+
       searchResult.forEach((result, index) => {
         if (result.place_detail && result.geometry){
           const loc=result.geometry.coordinates;
-          const marker=L.marker([loc[1], loc[0]]).addTo(map);
-          marker.bindPopup(`<b>${result._id}</b><br>${result.place_detail.name}`);
+          const marker=L.marker([loc[1], loc[0]]).bindPopup(`<b>${result._id}</b><br>${result.place_detail.name}`);
+          markerLayer.addLayer(marker);
+
           if (result.popularity_data.populartimes){
             const popular_data=result.popularity_data.populartimes[timeInfo.day_of_week-1].data[timeInfo.cur_hour];
             console.log(popular_data);
@@ -382,6 +400,9 @@
           ];
 
           const layout = {
+            autosize: true,
+            // width: 350,
+            // height: 350,
             polar: {
               radialaxis: {
                 visible: true,
