@@ -318,7 +318,7 @@
           markerLayer.addLayer(marker);
 
           if (result.popularity_data.populartimes){
-            const popular_data=result.popularity_data.populartimes[timeInfo.day_of_week-1].data[timeInfo.cur_hour];
+            const popular_data=result.popularity_data.populartimes[timeInfo.day_of_week].data[timeInfo.cur_hour];
             console.log(popular_data);
             if (popular_data==0){
               L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#808080'}).addTo(markerLayer);
