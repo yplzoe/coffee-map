@@ -1,0 +1,46 @@
+name: Deploy to EC2 🚀
+
+on:
+  push:
+    branches:
+      - "develop" # This triggers the workflow on push to any branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current branch ✅
+        uses: actions/checkout@v4
+
+      - name: Deploy to Server 1
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.HOST_DNS }}
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          TARGET: ${{ secrets.TARGET_DIR }}
+
+      - name: Create .env file dynamically 🧨
+        env:
+          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> env
+          echo "AWS_BUCKET_NAME=${AWS_BUCKET_NAME}" >> env
+          echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> env
+          echo "FLASK_SECRET_KEY=${FLASK_SECRET_KEY}" >> env
+          echo "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}" >> env
+          echo "GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}" >> env
+          echo "LINE_CLIENT_ID=${LINE_CLIENT_ID}" >> env
+          echo "LINE_CLIENT_SECRET=${LINE_CLIENT_SECRET}" >> env
+          echo "MONGO_URI=${MONGO_URI}" >> env
+          echo "OLD_GOOGLE_PLACES_API_KEY=${OLD_GOOGLE_PLACES_API_KEY}" >> env
+          echo "GOOGLE_ROUTES_API_KEY=${GOOGLE_ROUTES_API_KEY}" >> env
+
+      - name: SSH into EC2 instance 🚙
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_DNS }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH }}
+          script: |
+            sudo systemctl restart app.service
