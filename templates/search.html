@@ -195,7 +195,7 @@
           <div class="result-item">
             <form action="{{ url_for('add_cart') }}" method="POST">
               <p class="result-title"><strong>{{ result._id }}</strong></p>
-              {% if result.doc.user_ratings_total %}
+              {% if "user_ratings_total" in result.doc %}
               <p>
                 Total Ratings: {{ result.doc.user_ratings_total }} Rating: {{
                 result.doc.rating }}
@@ -210,7 +210,8 @@
                   class="table-container"
                   style="width: 50%"
                 >
-              <p><br>營業時間</br></p></div> 
+                  <p>營業時間</p>
+                </div>
               </div>
 
               <a
@@ -308,7 +309,7 @@
       const searchResult={{ search_result | tojson | safe}};
       const timeInfo={{ time_info | tojson | safe}};
 
-      const markerLayer=L.layerGroup().addTo(map);
+      const markerLayer=L.featureGroup().addTo(map);
 
       searchResult.forEach((result, index) => {
         if (result.place_detail && result.geometry){
@@ -320,13 +321,13 @@
             const popular_data=result.popularity_data.populartimes[timeInfo.day_of_week-1].data[timeInfo.cur_hour];
             console.log(popular_data);
             if (popular_data==0){
-              L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#808080'}).addTo(map);
+              L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#808080'}).addTo(markerLayer);
             }else if (popular_data<=33){
-              L.circleMarker([loc[1], loc[0]], {radius: 10, color: 'green'}).addTo(map);
+              L.circleMarker([loc[1], loc[0]], {radius: 10, color: 'green'}).addTo(markerLayer);
             } else if(popular_data<=66){
-              L.circleMarker([loc[1], loc[0]], {radius: 10, color: 'orange'}).addTo(map);
+              L.circleMarker([loc[1], loc[0]], {radius: 10, color: 'orange'}).addTo(markerLayer);
             } else if (popular_data<=100){
-              L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#ff0000'}).addTo(map);
+              L.circleMarker([loc[1], loc[0]], {radius: 10, color: '#ff0000'}).addTo(markerLayer);
             }else {
 
             };
@@ -354,6 +355,12 @@
 
         }
       })
+
+      if (markerLayer.getLayers().length > 0){
+        const bounds=markerLayer.getBounds();
+        map.fitBounds(bounds);
+      }
+
     });
 
     document.addEventListener("DOMContentLoaded", function(){
