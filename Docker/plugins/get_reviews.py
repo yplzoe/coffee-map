@@ -89,6 +89,7 @@ def get_single_shop_reviews(name):
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--ignore-ssl-errors=yes')
     options.add_argument('--ignore-certificate-errors')
+    options.add_argument("--lang=zh-TW")
     # chrome_driver_path = "/usr/local/bin/chromedriver"
     # service = Service(executable_path=chrome_driver_path)
     driver = webdriver.Remote(
@@ -178,8 +179,8 @@ def get_all_shop_reviews():
     count = 0
 
     for document in mongo_collection.find():
-        if count > 2:
-            break
+        # if count > 2:
+        #     break
         count += 1
 
         name = document.get('_id')
@@ -189,21 +190,35 @@ def get_all_shop_reviews():
         #     continue
 
         current_utc_time = datetime.now(timezone.utc)
-        # name = 'Tibet st. Cafe'
         review_output = []
         try:
-            review_output = get_single_shop_reviews(name)
+            address = document['place_detail'].get('formatted_address')
+            search_str = address+' '+name
+            review_output = get_single_shop_reviews(search_str)
         except Exception as e:
             print("error: {e}")
             review_output.append('error')
 
-        insert_data = [{
-            "name": name,
-            "reviews": review_output,
-            "create_at": current_utc_time
-        }]
-        output_json.append(insert_data[0])
-        mongo.insert_list("coffee-map", "more_reviews", insert_data)
+        if re_skip:
+            # If document exists, update it with new reviews
+            re_collection.update_many(
+                {"name": name}, {"$set": {"reviews": review_output, "update_at": current_utc_time}})
+            logging.info(f"Updated reviews for {name}")
+            updated_data = {
+                "name": name,
+                "reviews": review_output,
+                "update_at": current_utc_time
+            }
+            output_json.append(updated_data)
+        else:
+            insert_data = {
+                "name": name,
+                "reviews": review_output,
+                "create_at": current_utc_time,
+                "update_at": current_utc_time
+            }
+            output_json.append(insert_data)
+            mongo.insert_list("coffee-map", "more_reviews", insert_data)
 
     client.close()
     mongo.close_connection()

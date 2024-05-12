@@ -124,7 +124,7 @@ def get_classified_tag():
                 tag_result = categorize_data_raw(reviews)
 
                 find_latest = more_collection.find_one(
-                    {"name": id}, sort=[("create_at", -1)])
+                    {"name": id}, sort=[("update_at", -1)])
                 find_latest_review = find_latest.get('reviews')
                 if (find_latest_review != []) and (find_latest_review != ["error"]):
                     categorize_data_more_reviews(

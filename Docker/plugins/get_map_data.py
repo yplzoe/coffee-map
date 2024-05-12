@@ -172,23 +172,50 @@ def search_cafe():
         'language': 'zh-TW'
     }
     locations = get_location_from_txt()
-    # appworks = (25.038722892075647, 121.53235946829987)
-    # get_places_to_mongodb(params, appworks)
+    loc_queue = queue.Queue()
+    for item in locations:
+        loc_queue.put(item)
+    threads = []
+    for _ in range(100):  # Number of threads
+        thread = threading.Thread(
+            target=run_get_places_queue, args=(loc_queue, params))
+        threads.append(thread)
+        thread.start()
 
-    # test
-    count = 0
-    for loc in locations:
-        if count > 1:
-            break
-        count += 1
-        time.sleep(random.randint(5, 10))
-        if 'page_token' in params:
-            params.pop('page_token')
-        try:
-            get_places_to_mongodb(params, loc)
-        except Exception as e:
-            logging.error(f"An error occurred: {str(e)}")
+    for thread in threads:
+        thread.join()
+
     logging.info("Search cafe shop completed.")
+
+# def search_cafe():
+#     init_location = (25.30118, 121.28282)
+#     small_radius = 1000  # 1km
+#     params = {
+#         'type': 'cafe',
+#         'keyword': 'cafe',
+#         'location': init_location,
+#         'radius': small_radius,
+#         'open_now': False,
+#         'language': 'zh-TW'
+#     }
+#     locations = get_location_from_txt()
+#     # appworks = (25.038722892075647, 121.53235946829987)
+#     # get_places_to_mongodb(params, appworks)
+
+#     # test
+#     count = 0
+#     for loc in locations:
+#         if count > 1:
+#             break
+#         count += 1
+#         time.sleep(random.randint(5, 10))
+#         if 'page_token' in params:
+#             params.pop('page_token')
+#         try:
+#             get_places_to_mongodb(params, loc)
+#         except Exception as e:
+#             logging.error(f"An error occurred: {str(e)}")
+#     logging.info("Search cafe shop completed.")
 
 
 # num_threads = 10
