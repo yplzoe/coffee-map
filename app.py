@@ -1,3 +1,4 @@
+from flask import send_from_directory
 from app_fun import search_db, get_lat_lng, data_for_radars
 from collections import defaultdict
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, session, flash
@@ -231,6 +232,12 @@ def search():
         # logging.info(f"cur hour: {cur_hour}")
         return render_template('search.html', search_result=results, time_info=time_info)
     return redirect(url_for('index'))
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @ app.route('/', methods=['GET', 'POST'])
