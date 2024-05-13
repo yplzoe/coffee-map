@@ -127,6 +127,9 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    environment:
+      <<: *airflow-common-env
+      AIRFLOWWEBSERVERSECRET_KEY: "${AIRFLOWWEBSERVERSECRET_KEY}"
 
   airflow-scheduler:
     <<: *airflow-common

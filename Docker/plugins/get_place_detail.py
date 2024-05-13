@@ -69,7 +69,8 @@ def get_all_details():
             count += 1
             place_id = document['doc'].get('place_id')
             logging.info(f'Processing place with ID: {place_id}')
-            if place_id:
+            place_detail = document.get('place_detail')
+            if place_id and (place_detail == None):
                 time.sleep(random.randint(3, 6))
                 places_result = gmaps.place(place_id, **params)
                 logging.info(f"status: {places_result['status']}")

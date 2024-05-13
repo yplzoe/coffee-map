@@ -37,8 +37,8 @@ default_args = {
 
 with DAG(
     dag_id='coffee_map_fetch_data',
-    # schedule_interval='@monthly',
-    schedule_interval='@once',
+    schedule_interval='@monthly',
+    # schedule_interval='@once',
     default_args=default_args,
     catchup=False,
     tags=['coffee_map']

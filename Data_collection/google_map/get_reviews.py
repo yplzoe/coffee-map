@@ -150,8 +150,8 @@ for document in mongo_collection.find():
     # name = '上樓看看 咖啡'
 
     re_skip = re_collection.find_one({"name": name})
-    if re_skip:
-        continue
+    # if re_skip:
+    #     continue
 
     current_utc_time = datetime.now(timezone.utc)
     # name = 'Tibet st. Cafe'
