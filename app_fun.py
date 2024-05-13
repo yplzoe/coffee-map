@@ -93,7 +93,8 @@ def search_db(query):
         else:
             query_conditions.append({
                 'place_detail.formatted_address': {'$regex': district}})
-
+        query_conditions.append(
+            {'place_detail.formatted_address': {'$regex': '北市'}})
         query = {'$and': query_conditions}
         output = list(raw_collection.find(
             query).sort('doc.user_ratings_total', -1))
