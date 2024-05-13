@@ -214,17 +214,34 @@
                 </div>
               </div>
 
-              <a
-                href="{% if result.place_detail.website %}{{ result.place_detail.website }}{% else %}https://www.google.com/maps/place?q={{ result.place_detail.name }}{% endif %}"
-                >More Info</a
+              <div
+                id="info-container"
+                style="display: flex; justify-content: space-around"
               >
-              <input type="hidden" name="shop_name" value="{{ result._id }}" />
-              <input
-                type="hidden"
-                name="shop_ob_id"
-                value="{{ result.doc._id }}"
-              />
-              <button type="submit">Add to Scheduling List</button>
+                <div id="url-container" style="width: 40%">
+                  <button>
+                    <a
+                      href="{% if result.place_detail.website %}{{ result.place_detail.website }}{% else %}https://www.google.com/maps/place?q={{ result.place_detail.name }}{% endif %}"
+                      style="text-decoration: none; color: inherit"
+                      >More Info</a
+                    >
+                  </button>
+                </div>
+
+                <input
+                  type="hidden"
+                  name="shop_name"
+                  value="{{ result._id }}"
+                />
+                <input
+                  type="hidden"
+                  name="shop_ob_id"
+                  value="{{ result.doc._id }}"
+                />
+                <div id="addbtn-container" style="width: 40%">
+                  <button type="submit">Add to Scheduling List</button>
+                </div>
+              </div>
 
               {% endif %}
             </form>
