@@ -369,6 +369,11 @@
             // Add the table to your existing result item
             const radarDiv = document.getElementById(`table-container-${index + 1}`);
             radarDiv.appendChild(table);
+          }else{
+            const radarDiv = document.getElementById(`table-container-${index + 1}`);
+            const message = document.createElement('p');
+            message.textContent = "Opening hours not available";
+            radarDiv.appendChild(message);
           }
 
         }
@@ -415,30 +420,42 @@
       // console.log(results);
       results.forEach((result, index) => {
         if (result.place_detail && result.for_radar) {
-          const data = [
-            {
-              type: "scatterpolar",
-              r: result.for_radar.count,
-              theta: result.for_radar.tag,
-              fill: "toself",
-            },
-          ];
-
-          const layout = {
-            autosize: true,
-            // width: 350,
-            // height: 350,
-            polar: {
-              radialaxis: {
-                visible: true,
-                // range: [0, 10],
+          if (result.for_radar.count.length > 0 && result.for_radar.tag.length > 0){
+            const data = [
+              {
+                type: "scatterpolar",
+                r: result.for_radar.count,
+                theta: result.for_radar.tag,
+                fill: "toself",
               },
-            },
-            paper_bgcolor: "rgba(0,0,0,0)",
-            // title: `${result._id}`,
-          };
+            ];
 
-          Plotly.newPlot(`radar-${index + 1}`, data, layout);
+            const layout = {
+              autosize: true,
+              // width: 350,
+              // height: 350,
+              polar: {
+                radialaxis: {
+                  visible: true,
+                  // range: [0, 10],
+                },
+              },
+              paper_bgcolor: "rgba(0,0,0,0)",
+              // title: `${result._id}`,
+            };
+
+            Plotly.newPlot(`radar-${index + 1}`, data, layout);
+          }else{
+            const radarDiv = document.getElementById(`radar-${index + 1}`);
+            const message = document.createElement('p');
+            message.textContent = "Insufficient information for radar plot.";
+            radarDiv.appendChild(message);
+          }
+        }else{
+          const radarDiv = document.getElementById(`radar-${index + 1}`);
+          const message = document.createElement('p');
+          message.textContent = "Insufficient information for radar plot.";
+          radarDiv.appendChild(message);
         }
       });
     });
