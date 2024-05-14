@@ -123,6 +123,16 @@
       .dropdown-content div:hover {
         background-color: #f1f1f1;
       }
+      .shop-item {
+        display: flex; /* Makes it a flex container */
+        align-items: center; /* Vertically aligns items in the middle */
+        justify-content: space-between; /* Spaces out the children */
+        padding: 5px; /* Adds some padding around contents */
+        margin-bottom: 10px; /* Optional: adds space between entries */
+      }
+      .delete-btn {
+        width: 20%;
+      }
     </style>
   </head>
   <body>
@@ -138,6 +148,7 @@
           id="shop-input"
           placeholder="Enter shop name ..."
           pattern="[a-zA-Z0-9\u4E00-\u9FA5 .]+"
+          style="margin-bottom: 12px"
         />
         <button onclick="searchShops()">Add Shop</button>
         <div id="shop-results"></div>
