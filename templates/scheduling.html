@@ -16,6 +16,11 @@
       crossorigin=""
     ></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
+      rel="stylesheet"
+    />
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -43,7 +48,7 @@
       .left-panel,
       #map {
         flex: 1;
-        padding: 20px;
+        /* padding: 20px; */
         box-sizing: border-box;
       }
 
@@ -59,6 +64,8 @@
       #map {
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加陰影 */
+        width: auto;
+        height: 80%;
       }
       #status-message {
         margin-top: 20px;
@@ -399,7 +406,11 @@
       }
 
       const center = [25.038732612636068, 121.53235946764482];
-      const map = L.map("map").setView(center, 13);
+      const map=L.map(document.getElementById('map'), {
+        center: center,
+        zoom: 13,
+        fullscreenControl: true,
+      });
 
       const tiles = L.tileLayer(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
