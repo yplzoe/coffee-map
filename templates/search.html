@@ -222,6 +222,7 @@
                   <button>
                     <a
                       href="{% if result.place_detail.website %}{{ result.place_detail.website }}{% else %}https://www.google.com/maps/place?q={{ result.place_detail.name }}{% endif %}"
+                      target="_blank"
                       style="text-decoration: none; color: inherit"
                       >More Info</a
                     >
