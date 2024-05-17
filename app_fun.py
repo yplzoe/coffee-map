@@ -62,70 +62,79 @@ def find_mrt_shop(station_name, walking_time, tag_query):
     return output
 
 
-def search_db(query):
+def search_by_name(name):
+    keyword = name['text']
+    # logging.info(f"Keyword: {keyword}")
+    output = list(raw_collection.find({
+        "$and": [
+            {"_id": {"$regex": keyword, "$options": "i"}},
+            {'place_detail.formatted_address': {'$regex': '北市'}}
+        ]
+    }).sort('doc.user_ratings_total', -1))
+    return output
+
+
+def search_by_filters(filters):
     output = []
-    logging.info("enter search_db")
+    # logging.info(f'Filters: {filters}')
+    district = filters.get('district', '北市')
+    search_tags = filters.get('tags', [])
+    mrt_station = filters.get('mrt', '')
+    walking_time = filters.get('walking_time', 10)
+
+    if district == 'all':
+        district = '北市'
+
+    query_conditions = [{'tags.' + tag: {'$exists': True}}
+                        for tag in search_tags]
+
+    if mrt_station:
+        output = find_mrt_shop(
+            mrt_station, walking_time, query_conditions)
+        return output
+
+    if filters['user_location'] != ['', '']:
+        user_location = filters['user_location']  # str
+        user_location = [float(user_location[0]), float(user_location[1])]
+        user_km = 0.66 * walking_time * 0.1
+        user_query = {'geometry': {'$geoWithin': {"$centerSphere": [
+            user_location, user_km/6378.1]}}}
+        query_conditions.append(user_query)
+    else:
+        query_conditions.append({
+            'place_detail.formatted_address': {'$regex': district}})
+
+    query_conditions.append(
+        {'place_detail.formatted_address': {'$regex': '北市'}})
+    query = {'$and': query_conditions}
+
+    output = list(raw_collection.find(
+        query).sort('doc.user_ratings_total', -1))
+
+    return output
+
+
+def search_db(query):
+    """
+    Search shops based on various filters.
+    """
+    output = []
+    logging.info("Enter search_db.")
+    logging.info(f"Query: {query}")
     if 'filters' in query:
-        # search with places and tags
-        # {'filters': { 'district': selected_district, 'tags': selected_tags}}
-        district = query['filters']['district']
-        search_tags = query['filters']['tags']
-        mrt_station = query['filters']['mrt']
-
-        if district == 'all' or district == "":
-            district = '北市'
-
-        query_conditions = [{'tags.' + tag: {'$exists': True}}
-                            for tag in search_tags]
-
-        if mrt_station != '':
-            output = find_mrt_shop(
-                mrt_station, query['filters']['walking_time'], query_conditions)
-            return output
-
-        if query['filters']['user_location'] != ['', '']:
-            user_location = query['filters']['user_location']  # str
-            user_location = [float(user_location[0]), float(user_location[1])]
-            user_km = 0.66*query['filters']['walking_time']*0.1
-            user_query = {'geometry': {'$geoWithin': {"$centerSphere": [
-                user_location, user_km/6378.1]}}}
-            query_conditions.append(user_query)
-        else:
-            query_conditions.append({
-                'place_detail.formatted_address': {'$regex': district}})
-        query_conditions.append(
-            {'place_detail.formatted_address': {'$regex': '北市'}})
-        query = {'$and': query_conditions}
-        output = list(raw_collection.find(
-            query).sort('doc.user_ratings_total', -1))
-        print()
-
+        output = search_by_filters(query['filters'])
     elif 'name' in query:
-        # search with name
-        keyword = query['name']['text']
-        logging.info(f"keyword: {keyword}")
-        results = raw_collection.find({
-            "$and": [{"_id": {"$regex": keyword, "$options": "i"}},
-                     {'place_detail.formatted_address': {'$regex': '北市'}}]}).sort('doc.user_ratings_total', -1)
+        output = search_by_name(query['name'])
+    else:
+        logging.error("Invalid query format")
 
-        output = list(results)
-        print()
-        # for result in results:
-        #     logging.info(f"search result: {result['_id']}")
-        #     output.append(result)
-    # if len(output) == 0:
-    #     output.append(
-    #         {'_id': 'There is no store that matches.',
-    #          'place_detail': {'name': 'There is no store that matches.'}}
-    #     )
-    # logging.info(f"output: {output}")
+    logging.info(f"Search results count: {len(output)}")
     return output
 
 
 def get_lat_lng(shop_name):
     query = {'_id': shop_name}
     result = raw_collection.find_one(query)
-    # print(result)
     if result:
         try:
             return result['doc']['geometry']['location']
@@ -134,10 +143,6 @@ def get_lat_lng(shop_name):
             return None
     else:
         return None
-
-
-def calculate_lat_lng_dis(lat, lng):
-    pass
 
 
 def data_for_radars(data, selected_tags):
