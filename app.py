@@ -3,8 +3,6 @@ from app_fun import search_db, get_lat_lng, data_for_radars
 from collections import defaultdict
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, session, flash
 from flask_session import Session
-from flask_restful import Resource, Api
-from flask_cors import CORS
 from dotenv import load_dotenv
 from os.path import join, dirname, abspath
 import os
@@ -14,8 +12,6 @@ import time
 import datetime
 from datetime import timedelta, datetime
 import pytz
-from bson.objectid import ObjectId
-import Routes
 import Routes.tabu_search as tabu_search
 import Routes.get_travel_time_dictionary as get_travel_time_dictionary
 
@@ -38,8 +34,6 @@ load_dotenv(dotenv_path, override=True)
 DEFAULT_CENTER = ['25.03834398543371', '121.53246232312559']
 
 app = Flask(__name__)
-# CORS(app)
-api = Api(app)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
@@ -52,8 +46,6 @@ def make_session_permanent():
 
 
 def merge_dicts(dict1, dict2):
-    # logging.info(f"dict: {dict1}")
-    # logging.info(f"dict2: {dict2}")
     if isinstance(dict1, list) and isinstance(dict2, list):
         return dict1+dict2
     if isinstance(dict1, dict) and isinstance(dict2, dict):
@@ -69,25 +61,31 @@ def clear_cart_list():
 
 @app.route('/add-cart', methods=['POST'])
 def add_cart():
+    """
+    Endpoint to add an item to the cart.
+
+    Expects 'shop_name' and 'shop_ob_id' in the POST form data.
+    Adds the item to the session's 'cart_list'.
+    """
     logging.info("in add_cart")
     try:
         shop_name = request.form.get('shop_name')
         shop_ob_id = request.form.get('shop_ob_id')
-        if shop_name and request.method == 'POST':
-            dict_items = {shop_ob_id: {'shop_name': shop_name}}
-            # logging.info(f"add item: {dict_items}")
-            # logging.info(f"session before: {session['cart_list']}")
-            if 'cart_list' in session:
-                # logging.info(session['cart_list'])
-                if shop_ob_id in session['cart_list']:
-                    logging.info(f"{shop_name} has already in cart.")
-                    return jsonify({'success': True, 'already_in': True}), 200
-                else:
-                    session['cart_list'] = merge_dicts(
-                        session['cart_list'], dict_items)
-                    # logging.info(f"in session: {session['cart_list']}")
+
+        if not shop_name or not shop_ob_id:
+            return jsonify({'success': False, 'error': 'Missing shop_name or shop_ob_id'}), 400
+
+        dict_items = {shop_ob_id: {'shop_name': shop_name}}
+        if 'cart_list' in session:
+            # logging.info(session['cart_list'])
+            if shop_ob_id in session['cart_list']:
+                logging.info(f"{shop_name} has already in cart.")
+                return jsonify({'success': True, 'already_in': True}), 200
             else:
-                session['cart_list'] = dict_items
+                session['cart_list'] = merge_dicts(
+                    session['cart_list'], dict_items)
+        else:
+            session['cart_list'] = dict_items
         return jsonify({'success': True, 'already_in': False}), 200
     except Exception as e:
         logging.error(f"ERROR in add-cart: {e}")
@@ -96,29 +94,47 @@ def add_cart():
 
 @app.route('/search-shops')
 def search_shops():
-    shop_name = request.args.get('name', '')
-    logging.info(f'input shop name: {shop_name}')
-    search_query = defaultdict(dict)
-    search_query['name'] = {'text': shop_name}
-    shops = search_db(search_query)
-    if len(shops) == 0:
-        return jsonify({'status': 'fail'}), 200
+    """
+    Endpoint to search for shops by name.
 
-    for ss in shops:
-        ss['doc']['_id'] = ss['doc']['_id'].__str__()
-    output = []
-    if len(shops) > 1:
-        output.append(shops[0])
-    else:
-        output = shops
-    shop_name = output[0]['_id']
-    shop_location = get_lat_lng(shop_name)
-    # logging.info(f"output: {output}")
-    return jsonify({'status': 'success', 'shop_info': output, 'shop_location': shop_location}), 200
+    Retrieves shop information and location based on the provided name query parameter.
+    """
+    try:
+        shop_name = request.args.get('name', '')
+        logging.info(f'input shop name: {shop_name}')
+
+        if not shop_name:
+            return jsonify({'status': 'fail', 'message': 'Shop name is required'}), 400
+
+        search_query = defaultdict(dict)
+        search_query['name'] = {'text': shop_name}
+
+        shops = search_db(search_query)
+
+        if len(shops) == 0:
+            return jsonify({'status': 'fail', 'message': 'No shops found'}), 200
+
+        for ss in shops:
+            ss['doc']['_id'] = ss['doc']['_id'].__str__()
+
+        output = [shops[0]] if len(shops) > 1 else shops
+        shop_name = output[0]['_id']
+        shop_location = get_lat_lng(shop_name)
+
+        return jsonify({'status': 'success', 'shop_info': output, 'shop_location': shop_location}), 200
+
+    except Exception as e:
+        logging.error(f"Error in search-shops: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/get-scheduling', methods=['GET', 'POST'])
 def get_scheduling():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     data = request.json
     shop_names = data['shops']
 
@@ -227,9 +243,6 @@ def search():
             'cur_hour': cur_hour,
             'day_of_week': day_of_week
         }
-        # logging.info(f"cur date: {cur_date}")
-        # logging.info(f"day of week: {day_of_week}")
-        # logging.info(f"cur hour: {cur_hour}")
         return render_template('search.html', search_result=results, time_info=time_info)
     return redirect(url_for('index'))
 
