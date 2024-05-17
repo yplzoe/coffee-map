@@ -145,61 +145,19 @@ def get_lat_lng(shop_name):
         return None
 
 
-def data_for_radars(data, selected_tags):
-    tags = data["tags"]
-    tag_translations = {
-        "brew": '手沖',
-        "coffee": '咖啡',
-        "beans": '咖啡豆',
-        "internet": '網路',
-        "socket": '插座',
-        "seat": '座位',
-        "desert": '甜點',
-        "pet": '寵物',
-        "work": '適合工作',
-        "comfort": '氛圍',
-        "quiet": '安靜',
-        "time": '不限時'
-    }
-    df = pd.DataFrame(list(tags.items()), columns=['tag', 'count'])
-    df.sort_values(
-        by=['count'], inplace=True, ignore_index=True, ascending=False)
+def data_for_radars(data_tags, selected_tags, min_tags=5):
+    logging.info('in data_for_radars')
+    from config import tag_translations
 
-    if len(selected_tags) < 5:
-        additional_tags = df[~df['tag'].isin(
-            selected_tags)].head(5 - len(selected_tags))
-        selected_tags.extend(additional_tags['tag'].tolist())
+    df = pd.DataFrame(list(data_tags.items()), columns=['tag', 'count'])
+    df.sort_values(
+        by=['count'], inplace=True, ascending=False)
+
+    if len(selected_tags) < min_tags:
+        additional_tags = df.loc[~df['tag'].isin(selected_tags), 'tag'].head(
+            min_tags - len(selected_tags)).tolist()
+        selected_tags.extend(additional_tags)
 
     selected_df = df[df['tag'].isin(selected_tags)].copy()
     selected_df['tag'] = selected_df['tag'].map(tag_translations)
-    selected_df = selected_df.to_dict(orient='list')
-
-    return selected_df
-
-
-def plot_radars(data, selected_tags):
-    tags = data["tags"]
-    df = pd.DataFrame(list(tags.items()), columns=['tag', 'count'])
-    df.sort_values(
-        by=['count'], inplace=True, ignore_index=True, ascending=False)
-
-    if len(selected_tags) < 5:
-        additional_tags = df[~df['tag'].isin(
-            selected_tags)].head(5 - len(selected_tags))
-        selected_tags.extend(additional_tags['tag'].tolist())
-
-    selected_df = df.loc[df['tag'].isin(selected_tags)]
-    fig = px.line_polar(selected_df, r='count', theta='tag', line_close=True)
-    return fig
-
-# query = {'filters': {'district': '中正區', 'tags': ['手沖']}}
-# result = search_db(query)
-# print(result[0])
-
-# query_name = {'name': {'text': 'starbucks'}}
-# result_name = search_db(query_name)
-# print(len(result_name))
-
-
-# shop_name = '光進來的地方'
-# get_lat_lng(shop_name)
+    return selected_df.to_dict(orient='list')
