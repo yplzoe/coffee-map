@@ -230,7 +230,7 @@ def search():
             ss['doc']['_id'] = ss['doc']['_id'].__str__()
         for i in range(len_results):
             if 'tags' in results[i]:
-                tag_data = data_for_radars(results[i], selected_tags)
+                tag_data = data_for_radars(results[i]['tags'], selected_tags)
                 results[i]['for_radar'] = tag_data
         # logging.info(f"return data: {results}")
 
