@@ -13,3 +13,5 @@ tag_translations = {
     "quiet": '安靜',
     "time": '不限時'
 }
+
+DEFAULT_CENTER = ['25.03834398543371', '121.53246232312559']

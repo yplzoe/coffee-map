@@ -1,5 +1,5 @@
 from flask import send_from_directory
-from app_fun import search_db, get_lat_lng, data_for_radars
+from app_fun import *
 from collections import defaultdict
 from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, session, flash
 from flask_session import Session
@@ -31,7 +31,6 @@ root_path = abspath(join(dirname(__file__), os.pardir))
 dotenv_path = join(root_path, '.env')
 load_dotenv(dotenv_path, override=True)
 
-DEFAULT_CENTER = ['25.03834398543371', '121.53246232312559']
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY")
@@ -43,14 +42,6 @@ Session(app)
 def make_session_permanent():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(days=1)
-
-
-def merge_dicts(dict1, dict2):
-    if isinstance(dict1, list) and isinstance(dict2, list):
-        return dict1+dict2
-    if isinstance(dict1, dict) and isinstance(dict2, dict):
-        return dict(list(dict1.items())+list(dict2.items()))
-    return False
 
 
 @app.route('/clear-cart-list', methods=['POST'])
@@ -189,50 +180,29 @@ def scheduling():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    # search_query = None
-    search_query = defaultdict(dict)
     if request.method == 'POST':
-        selected_tags = []
-        if 'search_by_name' in request.form:
-            search_query['name'] = {'text': request.form['shop_name']}
-        elif 'search_by_filters' in request.form:
+
+        if 'search_by_filters' in request.form:
             if request.form['checkboxValue'] == 'false' and 'district' not in request.form and 'mrt' not in request.form:
                 flash('Please select at least one location condition.', 'error')
                 return redirect(url_for('index'))
-            selected_district = ''
-            selected_mrt = ''
-            if request.form['walking_time'] == '':
-                walking_time = 10
-            else:
-                walking_time = int(request.form['walking_time'])
 
-            if 'district' in request.form:
-                selected_district = request.form['district']
-            if 'mrt' in request.form:
-                selected_mrt = request.form['mrt']
-            selected_lat_lng = [
-                request.form['longitude'], request.form['latitude']]
-            if request.form['checkboxValue'] == 'true' and (request.form['longitude'] == '' or request.form['latitude'] == ''):
-                selected_lat_lng = [DEFAULT_CENTER[1], DEFAULT_CENTER[0]]
-            selected_tags = request.form.getlist('tags')
-            search_query['filters'] = {
-                'district': selected_district, 'tags': selected_tags, 'user_location': selected_lat_lng, 'mrt': selected_mrt, 'walking_time': walking_time}
-        logging.info(f"search query: {search_query}")
+        search_query = prepare_search_query(request.form)
+        # selected_tags = []
 
         results = search_db(search_query)  # list of shop info
         len_results = len(results)
-        # print(f"results: {results}")
-        # print(f"len results: {len_results}")
-        if len(results) == 0:
+        if len_results == 0:
             flash('Store does not exist in the database.', 'error')
             return redirect(url_for('index'))
         for ss in results:
             ss['doc']['_id'] = ss['doc']['_id'].__str__()
+
+        selected_tags = request.form.getlist('tags')
         for i in range(len_results):
             if 'tags' in results[i]:
                 tag_data = data_for_radars(results[i]['tags'], selected_tags)
                 results[i]['for_radar'] = tag_data
-        # logging.info(f"return data: {results}")
 
         taiwan_timezone = pytz.timezone('Asia/Taipei')
         cur_date = datetime.now(taiwan_timezone)
