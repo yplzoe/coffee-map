@@ -1,11 +1,13 @@
 from dotenv import load_dotenv
 from os.path import join, dirname, abspath
 import os
+from collections import defaultdict
 import pymongo
 from pymongo import MongoClient
 import plotly.express as px
 import pandas as pd
 import logging
+from config import *
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -21,6 +23,61 @@ client = MongoClient(uri)
 db = client['coffee-map']
 raw_collection = db['raw_shop_info']
 mrt_collection = db['mrt_location']
+
+
+def validate_and_get_walking_time(walking_time):
+    """
+    Validate and return walking time. Default to 10 if empty.
+    """
+    return int(walking_time) if walking_time else 10
+
+
+def get_selected_location(request_form):
+    """
+    Get selected district, MRT station, and user location from the form.
+    """
+    selected_district = request_form.get('district', '')
+    selected_mrt = request_form.get('mrt', '')
+    selected_lat_lng = [request_form.get(
+        'longitude', ''), request_form.get('latitude', '')]
+
+    if request_form.get('checkboxValue') == 'true' and (not selected_lat_lng[0] or not selected_lat_lng[1]):
+        selected_lat_lng = [DEFAULT_CENTER[1], DEFAULT_CENTER[0]]
+
+    return selected_district, selected_mrt, selected_lat_lng
+
+
+def prepare_search_query(request_form):
+    """
+    Prepare the search query based on the form data.
+    Args:
+        request_form (_type_): request form from user input.
+    """
+    search_query = defaultdict(dict)
+    if 'search_by_name' in request_form:
+        search_query['name'] = {'text': request_form['shop_name']}
+    elif 'search_by_filters' in request_form:
+        selected_district, selected_mrt, selected_lat_lng = get_selected_location(
+            request_form)
+        walking_time = validate_and_get_walking_time(
+            request_form.get('walking_time', ''))
+        selected_tags = request_form.getlist('tags')
+        search_query['filters'] = {
+            'district': selected_district,
+            'tags': selected_tags,
+            'user_location': selected_lat_lng,
+            'mrt': selected_mrt,
+            'walking_time': walking_time
+        }
+    return search_query
+
+
+def merge_dicts(dict1, dict2):
+    if isinstance(dict1, list) and isinstance(dict2, list):
+        return dict1+dict2
+    if isinstance(dict1, dict) and isinstance(dict2, dict):
+        return dict(list(dict1.items())+list(dict2.items()))
+    return False
 
 
 def search_mrt(station_name):
