@@ -25,10 +25,30 @@ raw_collection = db['raw_shop_info']
 mrt_collection = db['mrt_location']
 
 
+def handle_start_end_place(shop_names, start_place, end_place):
+    fixed_start = False
+    fixed_end = False
+
+    # TODO: if start==end
+    if start_place:
+        if start_place in shop_names:
+            shop_names.insert(0, shop_names.pop(shop_names.index(start_place)))
+        else:
+            shop_names.insert(0, start_place)
+        fixed_start = True
+
+    if end_place:
+        if end_place in shop_names:
+            shop_names.pop(shop_names.index(end_place))
+            shop_names.append(end_place)
+        else:
+            shop_names.append(end_place)
+        fixed_end = True
+
+    return shop_names, fixed_start, fixed_end
+
+
 def validate_and_get_walking_time(walking_time):
-    """
-    Validate and return walking time. Default to 10 if empty.
-    """
     return int(walking_time) if walking_time else 10
 
 
