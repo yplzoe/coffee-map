@@ -121,45 +121,32 @@ def search_shops():
 
 @app.route('/get-scheduling', methods=['GET', 'POST'])
 def get_scheduling():
-    """_summary_
+    """ Handle scheduling requests for shops.
 
     Returns:
-        _type_: _description_
+        json: Best route and scheduling information.
     """
     data = request.json
     shop_names = data['shops']
-
     travel_mode = data["travel_mode"]
     start_place = data['start_place']
     end_place = data['end_place']
-    fixed_start = False
-    fixed_end = False
-    # TODO: if start==end
-    if start_place != '' and start_place in shop_names:
-        shop_names.insert(0, shop_names.pop(shop_names.index(start_place)))
-        fixed_start = True
-    elif start_place != '':
-        shop_names.insert(0, start_place)
-        fixed_start = True
-    if end_place != '' and end_place in shop_names:
-        shop_names.pop(shop_names.index(end_place))
-        shop_names.append(end_place)
-        fixed_end = True
-    elif end_place != '':
-        shop_names.append(end_place)
-        fixed_end = True
+
+    shop_names, fixed_start, fixed_end = handle_start_end_place(
+        shop_names, start_place, end_place)
     logging.info(f"shop name: {shop_names}")
+
+    # Get travel time dictionary and perform tabu search
     dis_dict, shortest_index, full_routes = get_travel_time_dictionary.get_route_dict(
         shop_names, travel_mode, fixed_start, fixed_end)
-    logging.info(f"dis_dict: {dis_dict}")
     best_solution, best_obj = tabu_search.tabu_search(
         shop_names, 100, 2**len(shop_names), dis_dict)
     logging.info(f"best_solution: {best_solution}, best_obj: {best_obj}")
+
+    # Get route information
     polyline_list = get_travel_time_dictionary.return_all_path(
         best_solution, shortest_index, full_routes)
-    # logging.info(f"polyline: {polyline_list}")
     geojson_list = get_travel_time_dictionary.turn_into_geojson(polyline_list)
-    logging.info(f'geojson: {geojson_list}')
 
     return jsonify({'status': 'success', 'best_route': geojson_list, 'best_solution': best_solution, 'best_obj': best_obj}), 200
 
@@ -188,13 +175,14 @@ def search():
                 return redirect(url_for('index'))
 
         search_query = prepare_search_query(request.form)
-        # selected_tags = []
 
         results = search_db(search_query)  # list of shop info
+
         len_results = len(results)
         if len_results == 0:
             flash('Store does not exist in the database.', 'error')
             return redirect(url_for('index'))
+
         for ss in results:
             ss['doc']['_id'] = ss['doc']['_id'].__str__()
 
