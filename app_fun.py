@@ -6,22 +6,25 @@ import pymongo
 from pymongo import MongoClient
 import plotly.express as px
 import pandas as pd
-import logging
 from config import *
+from logger import LoggerConfigurator
+import logging
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
-)
-logger = logging.getLogger(__name__)
+log_configurator = LoggerConfigurator(log_file='logs/app_fun.log')
+log_configurator.configure()
+logger = logging.getLogger()
+
 
 root_path = abspath(join(dirname(__file__), os.pardir))
 dotenv_path = join(root_path, '.env')
 load_dotenv(dotenv_path, override=True)
 uri = os.environ.get("MONGO_URI")
 
+# TODO: py
 client = MongoClient(uri)
 db = client['coffee-map']
-raw_collection = db['raw_shop_info']
+# raw_shop_collection
+shop_collection = db['raw_shop_info']
 mrt_collection = db['mrt_location']
 
 
@@ -29,7 +32,6 @@ def handle_start_end_place(shop_names, start_place, end_place):
     fixed_start = False
     fixed_end = False
 
-    # TODO: if start==end
     if start_place:
         if start_place in shop_names:
             shop_names.insert(0, shop_names.pop(shop_names.index(start_place)))
@@ -120,7 +122,7 @@ def find_mrt_shop(station_name, walking_time, tag_query):
         geo_query = {'geometry': {'$geoWithin': {"$centerSphere": [
             corrdinates, wt_lm/6378.1]}}}
         combined_query = {'$and': tag_query+[geo_query]}
-        shops = list(raw_collection.find(combined_query))
+        shops = list(shop_collection.find(combined_query))
 
         for shop in shops:
             found = False
@@ -142,7 +144,7 @@ def find_mrt_shop(station_name, walking_time, tag_query):
 def search_by_name(name):
     keyword = name['text']
     # logging.info(f"Keyword: {keyword}")
-    output = list(raw_collection.find({
+    output = list(shop_collection.find({
         "$and": [
             {"_id": {"$regex": keyword, "$options": "i"}},
             {'place_detail.formatted_address': {'$regex': '北市'}}
@@ -185,13 +187,14 @@ def search_by_filters(filters):
         {'place_detail.formatted_address': {'$regex': '北市'}})
     query = {'$and': query_conditions}
 
-    output = list(raw_collection.find(
+    output = list(shop_collection.find(
         query).sort('doc.user_ratings_total', -1))
 
     return output
 
 
 def search_db(query):
+    # TODO: search_cafe_store()
     """
     Search shops based on various filters.
     """
@@ -211,7 +214,7 @@ def search_db(query):
 
 def get_lat_lng(shop_name):
     query = {'_id': shop_name}
-    result = raw_collection.find_one(query)
+    result = shop_collection.find_one(query)
     if result:
         try:
             return result['doc']['geometry']['location']
