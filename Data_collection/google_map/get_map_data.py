@@ -4,7 +4,6 @@
     2. 用place_neaby 找中心點為loc 半徑為1km內的咖啡廳 最多60筆
     3. insert to mongodb
 """
-# !: 不同location 取得相同結果
 
 import googlemaps
 import os
