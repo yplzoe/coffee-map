@@ -91,7 +91,7 @@ def search_shops():
     Retrieves shop information and location based on the provided name query parameter.
     """
     try:
-        shop_name = request.args.get('name', '')
+        shop_name = request.args.get('name', '').strip()
         logging.info(f'input shop name: {shop_name}')
 
         if not shop_name:
@@ -116,7 +116,7 @@ def search_shops():
 
     except Exception as e:
         logging.error(f"Error in search-shops: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'status': 'fail', 'error': str(e)}), 500
 
 
 @app.route('/get-scheduling', methods=['GET', 'POST'])
@@ -127,6 +127,7 @@ def get_scheduling():
         json: Best route and scheduling information.
     """
     data = request.json
+    logging.info(f"schedule data: {data}")
     shop_names = data['shops']
     travel_mode = data["travel_mode"]
     start_place = data['start_place']
@@ -168,40 +169,44 @@ def scheduling():
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method == 'POST':
+        try:
+            if 'search_by_filters' in request.form:
+                if request.form['checkboxValue'] == 'false' and 'district' not in request.form and 'mrt' not in request.form:
+                    flash('Please select at least one location condition.', 'error')
+                    return redirect(url_for('index'))
+            logging.info(f"request form: {request.form}")
+            search_query = prepare_search_query(request.form)
 
-        if 'search_by_filters' in request.form:
-            if request.form['checkboxValue'] == 'false' and 'district' not in request.form and 'mrt' not in request.form:
-                flash('Please select at least one location condition.', 'error')
+            results = search_db(search_query)  # list of shop info
+
+            len_results = len(results)
+            if len_results == 0:
+                flash('Store does not exist in the database.', 'error')
                 return redirect(url_for('index'))
 
-        search_query = prepare_search_query(request.form)
+            for ss in results:
+                ss['doc']['_id'] = ss['doc']['_id'].__str__()
 
-        results = search_db(search_query)  # list of shop info
+            selected_tags = request.form.getlist('tags')
+            for i in range(len_results):
+                if 'tags' in results[i]:
+                    tag_data = data_for_radars(
+                        results[i]['tags'], selected_tags)
+                    results[i]['for_radar'] = tag_data
 
-        len_results = len(results)
-        if len_results == 0:
-            flash('Store does not exist in the database.', 'error')
-            return redirect(url_for('index'))
-
-        for ss in results:
-            ss['doc']['_id'] = ss['doc']['_id'].__str__()
-
-        selected_tags = request.form.getlist('tags')
-        for i in range(len_results):
-            if 'tags' in results[i]:
-                tag_data = data_for_radars(results[i]['tags'], selected_tags)
-                results[i]['for_radar'] = tag_data
-
-        taiwan_timezone = pytz.timezone('Asia/Taipei')
-        cur_date = datetime.now(taiwan_timezone)
-        day_of_week = cur_date.isoweekday() % 7
-        cur_hour = cur_date.hour
-        time_info = {
-            'cur_date': cur_date,
-            'cur_hour': cur_hour,
-            'day_of_week': day_of_week
-        }
-        return render_template('search.html', search_result=results, time_info=time_info)
+            taiwan_timezone = pytz.timezone('Asia/Taipei')
+            cur_date = datetime.now(taiwan_timezone)
+            day_of_week = cur_date.isoweekday() % 7
+            cur_hour = cur_date.hour
+            time_info = {
+                'cur_date': cur_date,
+                'cur_hour': cur_hour,
+                'day_of_week': day_of_week
+            }
+            return render_template('search.html', search_result=results, time_info=time_info)
+        except Exception as e:
+            logging.error(f"Error in search: {e}")
+            return jsonify({'status': 'fail', 'error': str(e)}), 500
     return redirect(url_for('index'))
 
 
