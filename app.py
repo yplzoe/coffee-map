@@ -174,7 +174,7 @@ def search():
                 if request.form['checkboxValue'] == 'false' and 'district' not in request.form and 'mrt' not in request.form:
                     flash('Please select at least one location condition.', 'error')
                     return redirect(url_for('index'))
-            logging.info(f"request form: {request.form}")
+
             search_query = prepare_search_query(request.form)
 
             results = search_db(search_query)  # list of shop info
