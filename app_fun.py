@@ -193,8 +193,8 @@ def search_by_filters(filters):
     return output
 
 
-def search_db(query):
-    # TODO: search_cafe_store()
+def get_cafe_store(query):
+    # TODO: get_cafe_store()
     """
     Search shops based on various filters.
     """
