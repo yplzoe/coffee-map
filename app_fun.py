@@ -23,7 +23,7 @@ uri = os.environ.get("MONGO_URI")
 # TODO: py
 client = MongoClient(uri)
 db = client['coffee-map']
-# raw_shop_collection
+
 shop_collection = db['raw_shop_info']
 mrt_collection = db['mrt_location']
 
@@ -194,7 +194,6 @@ def search_by_filters(filters):
 
 
 def get_cafe_store(query):
-    # TODO: get_cafe_store()
     """
     Search shops based on various filters.
     """
