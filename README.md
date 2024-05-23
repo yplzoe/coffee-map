@@ -26,6 +26,8 @@ WEBSITE: <https://www.goforacoffee.site>
 
 - Load the processed data to MongoDB Atlas.
 
+
+
 ## Technologies
 
 **Programming Language:** Python  
@@ -37,7 +39,7 @@ WEBSITE: <https://www.goforacoffee.site>
 ## Feature
 
 1. Searching by shop name or filters  
-   ![search by shop name](/README_required/search_by_name.mov)
+   https://github.com/yplzoe/coffee-map/assets/103309763/7da64d98-b611-44cb-9829-2ab15a364c8c
 2. Tags for Coffee Shops
 3. Historical Popular Times Information
 4. Route Scheduling
