@@ -50,12 +50,6 @@ def add_cart():
     Expects 'shop_name' and 'shop_ob_id' in the POST form data.
     Adds the item to the session's 'cart_list'.
     """
-    """
-    Endpoint to add an item to the cart.
-
-    Expects 'shop_name' and 'shop_ob_id' in the POST form data.
-    Adds the item to the session's 'cart_list'.
-    """
     logging.info("in add_cart")
     try:
         shop_name = request.form.get('shop_name')
