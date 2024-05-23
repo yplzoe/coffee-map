@@ -1,7 +1,7 @@
 # Coffee Map
 
 Welcome to my project!  
-Coffee Map is a website that made in Python and Flask framework. It provides users to search for cafes by location and tags.
+Coffee Map is a website that made in Python and Flask framework. It provides users to search for coffee shops by location and feature tags.
 
 WEBSITE: <https://www.goforacoffee.site>
 
@@ -26,53 +26,39 @@ WEBSITE: <https://www.goforacoffee.site>
 
 - Load the processed data to MongoDB Atlas.
 
-
-
 ## Technologies
 
 **Programming Language:** Python  
+**Framework:** Flask  
+**Visualize Tools:** Leaflet, Plotly  
 **Database:** MongoDB Atlas  
 **Data Pipeline:** Apache Airflow  
 **Cloud Services:** AWS EC2, AWS CloudWatch, AWS S3  
-**Others:** GitHub Actions, Docker, Nginx, Leaflet, Plotly
+**Containerization Service:** Docker
+**Reverse Proxy:** Nginx  
+**Testing:** Pytest  
+**CI/CD:** GitHub Actions
 
 ## Feature
 
-1. Searching by shop name or filters  
-
-
+### 1. Searching by shop name
 
 https://github.com/yplzoe/coffee-map/assets/103309763/a2943b35-0eb4-43b3-bb30-8b3906a39352
 
+### 2. Searching by filters
 
-
-2. Tags for Coffee Shops
-
-
-
-
+Filters including geolocation and feature tags. On the results page, users can observe the distribution of each store under each feature tag.
 
 https://github.com/yplzoe/coffee-map/assets/103309763/cfbdb87d-6aa3-495a-a6ae-1b49fd674444
 
+### 3. Historical Popular Times Information
 
-
-
-
-3. Historical Popular Times Information
-
-
-
-
+Provide crowd information to help users determine the best times to visit.
 
 https://github.com/yplzoe/coffee-map/assets/103309763/cdd6a327-000e-4a49-a653-b62c9386ddbc
 
+### 4. Route Scheduling
 
-
-
-4. Route Scheduling
-
-
+Provide route planning to help users visit all desired locations in the shortest possible time.
 
 https://github.com/yplzoe/coffee-map/assets/103309763/059890e5-588d-4cbf-823e-1ed09a6b35d2
-
-
