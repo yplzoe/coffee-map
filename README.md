@@ -39,7 +39,40 @@ WEBSITE: <https://www.goforacoffee.site>
 ## Feature
 
 1. Searching by shop name or filters  
-   https://github.com/yplzoe/coffee-map/assets/103309763/7da64d98-b611-44cb-9829-2ab15a364c8c
+
+
+
+https://github.com/yplzoe/coffee-map/assets/103309763/a2943b35-0eb4-43b3-bb30-8b3906a39352
+
+
+
 2. Tags for Coffee Shops
+
+
+
+
+
+https://github.com/yplzoe/coffee-map/assets/103309763/cfbdb87d-6aa3-495a-a6ae-1b49fd674444
+
+
+
+
+
 3. Historical Popular Times Information
+
+
+
+
+
+https://github.com/yplzoe/coffee-map/assets/103309763/cdd6a327-000e-4a49-a653-b62c9386ddbc
+
+
+
+
 4. Route Scheduling
+
+
+
+https://github.com/yplzoe/coffee-map/assets/103309763/059890e5-588d-4cbf-823e-1ed09a6b35d2
+
+
