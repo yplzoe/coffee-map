@@ -3,7 +3,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 
 class LoggerConfigurator:
-    def __init__(self, log_file, when='midnight', interval=1, backup_count=7, log_level=logging.INFO):
+    def __init__(self, log_file, when='midnight', interval=1, backup_count=7, log_level=logging.WARNING):
         self.log_file = log_file
         self.when = when
         self.interval = interval
