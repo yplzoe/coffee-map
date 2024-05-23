@@ -133,7 +133,7 @@ def get_scheduling():
     dis_dict, shortest_index, full_routes = get_travel_time_dictionary.get_route_dict(
         shop_names, travel_mode, fixed_start, fixed_end)
     best_solution, best_obj = tabu_search.tabu_search(
-        shop_names, 100, 2**len(shop_names), dis_dict)
+        shop_names, 100, 2**len(shop_names), dis_dict, fixed_start, fixed_end)
     logging.info(f"best_solution: {best_solution}, best_obj: {best_obj}")
 
     # Get route information

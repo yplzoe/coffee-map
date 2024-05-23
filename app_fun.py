@@ -32,14 +32,23 @@ def handle_start_end_place(shop_names, start_place, end_place):
     fixed_start = False
     fixed_end = False
 
-    if start_place:
+    if start_place and end_place:
+        if start_place in shop_names:
+            shop_names.pop(shop_names.index(start_place))
+        if end_place in shop_names:
+            shop_names.pop(shop_names.index(end_place))
+        shop_names.insert(0, start_place)
+        shop_names.append(end_place)
+        fixed_start, fixed_end = True, True
+
+    elif start_place:
         if start_place in shop_names:
             shop_names.insert(0, shop_names.pop(shop_names.index(start_place)))
         else:
             shop_names.insert(0, start_place)
         fixed_start = True
 
-    if end_place:
+    elif end_place:
         if end_place in shop_names:
             shop_names.pop(shop_names.index(end_place))
             shop_names.append(end_place)

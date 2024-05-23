@@ -17,11 +17,16 @@ def object_function(solution, dis_dict):
     return total_time
 
 
-def get_neighbors(solution):
+def get_neighbors(solution, fixed_start, fixed_end):
     # swapping two elements
+    start, end = 0, len(solution)
+    if fixed_start:
+        start = 1
+    if fixed_end:
+        end -= 1
     neighbors = []
-    for i in range(len(solution)):
-        for j in range(i+1, len(solution)):
+    for i in range(start, end):
+        for j in range(i+1, end):
             neighbor = solution[:]
             neighbor[i], neighbor[j] = neighbor[j], neighbor[i]
             neighbors.append(neighbor)
@@ -29,7 +34,7 @@ def get_neighbors(solution):
     return neighbors
 
 
-def tabu_search(initial_solution, max_iterations, tabu_list_size, dis_dict):
+def tabu_search(initial_solution, max_iterations, tabu_list_size, dis_dict, fixed_start=False, fixed_end=False):
     best_solution = initial_solution
     best_obj = object_function(best_solution, dis_dict)
     current_solution = initial_solution
@@ -37,7 +42,7 @@ def tabu_search(initial_solution, max_iterations, tabu_list_size, dis_dict):
     tabu_list = OrderedDict()
 
     for _ in range(max_iterations):
-        neighbors = get_neighbors(current_solution)
+        neighbors = get_neighbors(current_solution, fixed_start, fixed_end)
         best_neighbor = None
         best_neighbor_obj = float('inf')
 
