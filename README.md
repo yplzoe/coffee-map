@@ -36,7 +36,7 @@ WEBSITE: <https://www.goforacoffee.site>
 **Database:** MongoDB Atlas  
 **Data Pipeline:** Apache Airflow  
 **Cloud Services:** AWS EC2, AWS CloudWatch, AWS S3  
-**Containerization Service:** Docker
+**Containerization Service:** Docker  
 **Reverse Proxy:** Nginx  
 **Testing:** Pytest  
 **CI/CD:** GitHub Actions
