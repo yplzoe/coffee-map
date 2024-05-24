@@ -1,5 +1,7 @@
 # Coffee Map
 
+![Static Badge](https://img.shields.io/badge/license%20-%20MIT%20-%20blue)
+
 Welcome to my project!  
 Coffee Map is a website that made in Python and Flask framework. It provides users to search for coffee shops by location and feature tags.
 
