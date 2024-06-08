@@ -49,5 +49,5 @@ def add_cart():
 
 def register_cart_routes(app: Flask):
     app.add_url_rule('/clear-cart-list', 'clear_cart_list',
-                     clear_cart_list, methods=['POST'])
+                     clear_cart_list, methods=['DELETE'])
     app.add_url_rule('/add-cart', 'add_cart', add_cart, methods=['POST'])
